@@ -286,6 +286,23 @@ config MOUSE_GPIO
 	  To compile this driver as a module, choose M here: the
 	  module will be called gpio_mouse.
 
+config MOUSE_JZ_GPIO
+	tristate "JZ GPIO simulated mouse"
+	depends on GENERIC_GPIO && JZSOC
+	select INPUT_POLLDEV
+	select INPUT_MOUSEDEV
+	help
+	  This driver simulates a mouse on GPIO lines of various CPUs (and some
+	  other chips).
+
+	  Say Y here if your device has buttons or a simple joystick connected
+	  directly to GPIO lines. Your board-specific setup logic must also
+	  provide a platform device and platform data saying which GPIOs are
+	  used.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called jz_gpio_mouse.
+
 config MOUSE_PXA930_TRKBALL
 	tristate "PXA930 Trackball mouse"
 	depends on CPU_PXA930 || CPU_PXA935
