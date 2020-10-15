@@ -1,0 +1,29 @@
+UBIFS File System - Make File System program
+
+* crc16.h and crc16.c were copied from the linux kernel.
+* crc32.h and crc32.c were copied from mtd-utils and amended.
+* ubifs-media.h is fs/ubifs/ubifs-media.h from the linux kernel
+* ubifs.h is a selection of definitions from fs/ubifs/ubifs.h from the linux kernel.
+* key.h is copied from fs/ubifs/key.h from the linux kernel.
+* defs.h is a bunch of definitions to smooth things over.
+* lpt.c is a selection of functions copied from fs/ubifs/lpt.c from the linux kernel, and amended.
+* hashtable/* was downloaded from http://www.cl.cam.ac.uk/~cwc22/hashtable/
+
+***************************************************************************
+
+To build the mkfs.ubifs:
+
+$ cd fs/ubifs/mkfs.ubifs
+$ ./configure
+$ make
+
+To run mkfs.ubifs:
+
+$ export LD_LIBRARY_PATH=`pwd`/lzo/lib:$LD_LIBRARY_PATH
+$ ./mkfs.ubifs -h
+
+To build an ubifs image:
+
+$ ./mkfs.ubifs -r /nfsroot/root26 -m 2048 -e 258048 -c 813 -o ubifs.img
+
+***************************************************************************

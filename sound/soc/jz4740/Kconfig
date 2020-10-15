@@ -1,0 +1,34 @@
+config SND_JZ4740_SOC
+	tristate "SoC Audio for Ingenic jz4740 chip"
+	depends on (JZ4740_PAVO || JZ4725_DIPPER || JZ4720_VIRGO) && SND_SOC
+	help
+	  Say Y or M if you want to add support for codecs attached to
+	  the Jz4740 AC97, I2S or SSP interface. You will also need
+	  to select the audio interfaces to support below.
+
+config SND_JZ4740_SOC_PAVO
+	tristate "SoC Audio support for Ingenic Jz4740 PAVO board"
+	depends on SND_JZ4740_SOC
+	help
+	  Say Y if you want to add support for SoC audio of internal codec on Ingenic Jz4740 PAVO board.
+
+config SND_JZ4740_AC97
+	tristate "select AC97 protocol and AC97 codec pcm core support"
+	depends on SND_JZ4740_SOC && SND_JZ4740_SOC_PAVO
+	select SND_AC97_CODEC
+	help
+	  Say Y if you want to add AC97 protocol support for pcm core.
+
+config SND_JZ4740_SOC_AC97
+	tristate "SoC Audio (AC97 protocol) for Ingenic jz4740 chip"
+	depends on SND_JZ4740_SOC && SND_JZ4740_AC97 && SND_JZ4740_SOC_PAVO
+	select AC97_BUS
+	select SND_SOC_AC97_BUS
+	help
+	  Say Y if you want to use AC97 protocol and ac97 codec on Ingenic Jz4740 PAVO board.
+
+config SND_JZ4740_SOC_I2S
+	depends on SND_JZ4740_SOC && SND_JZ4740_SOC_PAVO
+	tristate "SoC Audio (I2S protocol) for Ingenic jz4740 chip"
+	help
+	  Say Y if you want to use I2S protocol and I2S codec on Ingenic Jz4740 PAVO board.

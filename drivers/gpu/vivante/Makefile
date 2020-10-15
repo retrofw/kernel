@@ -1,0 +1,2 @@
+obj-$(CONFIG_VIVANTE_GPU_GC200)				+= VIVANTE_GAL2D_Unified_Src_drv_2010.2.5.3/
+

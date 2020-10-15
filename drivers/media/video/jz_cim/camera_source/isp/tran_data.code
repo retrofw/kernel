@@ -1,0 +1,22 @@
+#include <stdio.h>
+#include <stdlib.h>
+void main()
+{ FILE * fd,* fd2;
+  int c,i=0;
+  fd=fopen("./_MCU.BIN","r");
+  fd2=fopen("./data.h","w+");
+  fprintf(fd2,"char ISP3BinaryDataMcu[]={");
+  while((c=fgetc(fd))!=EOF)
+  {
+  if((i%16)==0)
+    fprintf(fd2,"\n");
+  fprintf(fd2,"0x%02x,",c);
+  i++;
+  }
+  fseek(fd2,-1L,SEEK_CUR);
+  fprintf(fd2,"};\n");
+  fprintf(fd2,"#define ISP3BinarySize  (sizeof(ISP3BinaryDataMcu)/sizeof(char))\n");
+  fclose(fd);
+  fclose(fd2);
+  fprintf(stdout,"hello\n");
+}

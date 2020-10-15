@@ -1,0 +1,110 @@
+#!/bin/bash
+
+if [ $# != 5 ]
+then
+	echo "Usage:"
+	echo "	`basename $0` /nfsroot/root26 pagesize ppb rootfs_size ubifs.img"
+	echo ""
+	echo "	pagesize:	min I/O size, same as pagesize"
+	echo "	ppb:		page num per block"
+	echo "	rootfs_size:	rootfs partition size (MB)"
+	echo "	ubifs.img:	output file name"
+	echo ""
+	echo "Example:"
+	echo "	`basename $0` /nfsroot/root26 4096 128 504 ubifs.img"
+	exit 1
+fi
+
+root_path=$1
+min_io=$2	# same as pagesize
+ppb=$3		# page per block
+rootfs_size=$4
+out_file=$5
+
+peb_size=$(($min_io*$ppb))
+leb_size=$(($peb_size-$min_io-$min_io))
+leb_num=$(($rootfs_size*1024*1024/$peb_size))
+orig_out_file=orig_$out_file
+sec_out_file=sec_$out_file
+#file_name=`basename $out_file`
+#vol_name=${file_name%%.*}
+
+echo "make ubifs image ..."
+
+echo "root_path = $root_path"
+echo "min_io = $min_io"
+echo "ppb = $ppb"
+echo "rootfs_size = $rootfs_size"
+echo "out_file = $out_file"
+echo "peb_size = $peb_size"
+echo "leb_size = $leb_size"
+echo "leb_num = $leb_num"
+
+cd fs/ubifs/mkfs.ubifs/
+
+if [ ! -e mkfs.ubifs ]
+then
+	make
+fi
+
+export LD_LIBRARY_PATH=`pwd`/lzo/lib:$LD_LIBRARY_PATH
+
+while :; do
+        echo -n "#"
+        sleep 0.5
+done &
+
+PROGRESS_PID=$!
+
+trap 'kill $PROGRESS_PID >/dev/null 2>&1; exit 1' TERM INT
+
+#trap 'kill $PROGRESS_PID; exit 0' EXIT
+
+./mkfs.ubifs -r $root_path -m $min_io -e $leb_size -c $leb_num -o $orig_out_file
+
+kill $PROGRESS_PID >/dev/null 2>&1
+echo
+
+cd - > /dev/null
+
+cd drivers/mtd/mtd-utils/ubi-utils/new-utils/
+
+if [ ! -d new-utils-dir-x86 ]
+then
+	make ARCH=x86
+fi
+
+cd - > /dev/null
+
+cp drivers/mtd/mtd-utils/ubi-utils/new-utils/new-utils-dir-x86/ubirefimg ./
+cp drivers/mtd/mtd-utils/ubi-utils/new-utils/new-utils-dir-x86/ubinize ./
+
+mv fs/ubifs/mkfs.ubifs/$orig_out_file ./
+
+./ubirefimg $orig_out_file $sec_out_file $leb_size
+
+# prepare configuration ini-file
+vol_size=$((($leb_num*99/100-4)*$leb_size/1024/1024))MiB
+
+echo "vol_size = $vol_size"
+
+ini_file=ubi.ini
+
+cat > $ini_file << End-of-ini
+[ubifs]
+mode=ubi
+image=$sec_out_file
+vol_id=0
+vol_size=$vol_size
+vol_type=dynamic
+vol_name=ubifs
+vol_alignment=1
+vol_flag=autoresize
+End-of-ini
+
+./ubinize -v -o $out_file $ini_file -p $peb_size -m $min_io
+
+rm -fr $orig_out_file $sec_out_file $ini_file ubirefimg ubinize
+
+echo "make ubifs image done."
+

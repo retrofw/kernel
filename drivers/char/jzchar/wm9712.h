@@ -1,0 +1,58 @@
+#ifndef __WM9712_H__
+#define __WM9712_H__
+
+#define DIGI_REG1	0x76
+#define DIGI_REG2	0x78
+#define DIGI_READBACK	0x7A
+
+#define ADCSEL_BIT		12
+#define ADCSEL_MASK		(7 << ADCSEL_BIT)
+#define   ADCSEL_NONE		(0 << ADCSEL_BIT)
+#define   ADCSEL_XPOS		(1 << ADCSEL_BIT)
+#define   ADCSEL_YPOS		(2 << ADCSEL_BIT)
+#define   ADCSEL_PRESSURE	(3 << ADCSEL_BIT)
+#define   ADCSEL_COMP1		(4 << ADCSEL_BIT)
+#define   ADCSEL_COMP2		(5 << ADCSEL_BIT)
+#define   ADCSEL_BMON		(6 << ADCSEL_BIT)
+#define   ADCSEL_WIPER		(7 << ADCSEL_BIT)
+
+#define DIGI_REG1_CTC		(1 << 10)
+#define DIGI_REG1_POLL		(1 << 15)
+#define DIGI_REG1_CR_BIT	8
+#define DIGI_REG1_CR_MASK	(3 << DIGI_REG1_CR_BIT)
+#define DIGI_REG1_COO		(1 << 11)
+#define DIGI_REG1_SLEN		(1 << 3)
+#define DIGI_REG1_SLT_BIT	0
+#define DIGI_REG1_SLT_MASK	(7 << DIGI_REG1_SLT_BIT)
+#define   DIGI_REG1_SLT_5	(0 << DIGI_REG1_SLT_BIT)
+#define   DIGI_REG1_SLT_6	(1 << DIGI_REG1_SLT_BIT)
+#define   DIGI_REG1_SLT_7	(2 << DIGI_REG1_SLT_BIT)
+#define   DIGI_REG1_SLT_8	(3 << DIGI_REG1_SLT_BIT)
+#define   DIGI_REG1_SLT_9	(4 << DIGI_REG1_SLT_BIT)
+#define   DIGI_REG1_SLT_10	(5 << DIGI_REG1_SLT_BIT)
+#define   DIGI_REG1_SLT_11	(6 << DIGI_REG1_SLT_BIT)
+#define   DIGI_REG1_SLT_RES	(7 << DIGI_REG1_SLT_BIT)
+#define DIGI_REG1_DEL_BIT	4
+#define DIGI_REG1_DEL_MASK	(0x0f << DIGI_REG1_DEL_BIT)
+
+#define DIGI_REG2_WIRE_5	(1 << 12)
+#define DIGI_REG2_WIRE_4	(0 << 12)
+#define DIGI_REG2_RPU_BIT	0
+#define DIGI_REG2_RPU_MASK	(0x3f << DIGI_REG2_RPU_BIT)
+#define DIGI_REG2_PIL_400uA	(1 << 8)
+#define DIGI_REG2_PIL_200uA	(0 << 8)
+#define DIGI_REG2_PRP_BIT	14
+#define DIGI_REG2_PRP_MASK	(3 << DIGI_REG2_PRP_BIT)
+#define   DIGI_REG2_PRP_ALLOFF	(0 << DIGI_REG2_PRP_BIT)
+#define   DIGI_REG2_PRP_WOP	(1 << DIGI_REG2_PRP_BIT)
+#define   DIGI_REG2_PRP_NWOP	(2 << DIGI_REG2_PRP_BIT)
+#define   DIGI_REG2_PRP_ALLON	(3 << DIGI_REG2_PRP_BIT)
+#define DIGI_REG2_RPR_WOR	(0 << 13)
+#define DIGI_REG2_RPR_NWOR	(1 << 13)
+#define DIGI_REG2_PDEN		(1 << 11)
+#define DIGI_REG2_WAIT		(1 << 9)
+
+#define DIGI_READBACK_PNDN	(1 << 15)
+
+#endif /* __WM9712_H__ */
+

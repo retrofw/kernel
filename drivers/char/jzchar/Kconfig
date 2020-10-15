@@ -1,0 +1,72 @@
+#
+# JzSOC char devices configuration
+#
+
+menu "JZSOC char device support"
+	depends on SOC_JZ4740 || SOC_JZ4730 || SOC_JZ4750 || SOC_JZ4750D || SOC_JZ4760 || SOC_JZ4760B || SOC_JZ4770 || SOC_JZ4810
+
+config JZCHAR
+	tristate 'JzSOC char device support'
+	depends on SOC_JZ4740 || SOC_JZ4730 || SOC_JZ4750 || SOC_JZ4750D || SOC_JZ4760 || SOC_JZ4760B || SOC_JZ4770 || SOC_JZ4810 
+
+config JZ_SIMPLE_I2C
+	tristate 'Ingenic Simple I2C Userspace Driver'
+	depends on SOC_JZ4740 || SOC_JZ4730 || SOC_JZ4750 || SOC_JZ4750D 
+
+config JZ_GPIO_PM_KEY
+	tristate 'Ingenic GPIO PM Key Driver'
+	depends on SOC_JZ4740 || SOC_JZ4730 || SOC_JZ4750 || SOC_JZ4750D 
+
+config JZ_TPANEL_ATA2508
+	tristate 'JzSOC MPEG4 TOUCH PANEL ATA2508 support'
+	depends on JZCHAR && (SOC_JZ4740 || SOC_JZ4730 || SOC_JZ4750 || SOC_JZ4750D)
+
+#config JZ_TPANEL
+#	tristate 'JzSOC touchpanel driver support' 
+#	depends on JZCHAR
+
+#	select JZ_SADC if SOC_JZ4740
+#	select JZ_TPANEL_AK4182 if SOC_JZ4730
+
+choice
+	prompt "Touch Panel ADC type"
+	depends on JZ_TPANEL
+	default JZ_SADC if SOC_JZ4740 || SOC_JZ4750 || SOC_JZ4750D || SOC_JZ4750L
+	default JZ_TPANEL_AK4182 if SOC_JZ4730
+
+config JZ_SADC
+	bool 'Select the JZ47XX internal SADC'
+
+config JZ_TPANEL_AK4182
+	bool 'Select the AK4182 codec'
+
+config JZ_TPANEL_UCB1400
+	bool 'Select the UCB1400 codec'
+
+config JZ_TPANEL_WM9712
+	bool 'Select the WM9712 codec'
+
+endchoice
+
+config JZ_OW
+	tristate 'JZ One-wire bus support' 
+	depends on JZCHAR && (SOC_JZ4740 || SOC_JZ4730 || SOC_JZ4750 || SOC_JZ4750D)
+
+config JZ_TCSM
+	tristate 'JZ TCSM support' 
+	depends on JZCHAR && (SOC_JZ4750 || SOC_JZ4750D || SOC_JZ4750L || SOC_JZ4760 || SOC_JZ4760B || SOC_JZ4770 || SOC_JZ4810)
+
+config JZ4770_TCU
+	tristate 'Ingenic JZ4770 TCU Driver'
+	depends on JZCHAR && SOC_JZ4770
+
+config JZ_TSSI_4760
+	tristate 'JZ MPEG2-TS interface support for JZ4760 or JZ4760B' 
+	depends on JZCHAR && (SOC_JZ4760 || SOC_JZ4760B)
+
+config JZ_WIEGAND
+	tristate 'Wiegand impl on Ingenic Soc'
+	depends on JZSOC
+
+endmenu
+

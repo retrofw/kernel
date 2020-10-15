@@ -1,0 +1,12 @@
+
+To build ubi-utils:
+
+$ cd drivers/mtd/mtd-utils/ubi-utils/new-utils/
+
+To build utils for x86:
+
+$ make ARCH=x86
+
+To build utils for mips:
+
+$ make ARCH=mips

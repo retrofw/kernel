@@ -1,0 +1,22 @@
+snd-soc-ac97-objs := ac97.o
+snd-soc-wm8731-objs := wm8731.o
+snd-soc-wm8750-objs := wm8750.o
+snd-soc-wm8753-objs := wm8753.o
+snd-soc-wm9712-objs := wm9712.o
+snd-soc-cs4270-objs := cs4270.o
+snd-soc-jzcodec-objs := jzcodec.o
+snd-soc-jzdlv-objs := jzdlv.o
+snd-soc-jz4770-icdc-objs := jz4770_icdc.o
+snd-soc-jz4760-icdc-objs := jz4760_icdc.o
+
+obj-$(CONFIG_SND_SOC_AC97_CODEC)	+= snd-soc-ac97.o
+obj-$(CONFIG_SND_SOC_WM8731)	+= snd-soc-wm8731.o
+obj-$(CONFIG_SND_SOC_WM8750)	+= snd-soc-wm8750.o
+obj-$(CONFIG_SND_SOC_WM8753)	+= snd-soc-wm8753.o
+obj-$(CONFIG_SND_SOC_WM9712)	+= snd-soc-wm9712.o
+obj-$(CONFIG_SND_SOC_CS4270)	+= snd-soc-cs4270.o
+obj-$(CONFIG_SND_SOC_ICODEC)	+= snd-soc-jzcodec.o
+obj-$(CONFIG_SND_SOC_DLV)	+= snd-soc-jzdlv.o
+obj-$(CONFIG_SND_SOC_ICDC)	+= jz4760_icdc.o
+obj-$(CONFIG_SND_SOC_JZ4760_ICDC)	+= snd-soc-jz4760-icdc.o
+obj-$(CONFIG_SND_SOC_JZ4770_ICDC)	+= snd-soc-jz4770-icdc.o

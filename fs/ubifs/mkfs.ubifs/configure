@@ -1,0 +1,9 @@
+#!/bin/sh
+
+echo "Copy include/asm-geniric/bitsperlong.h to include/asm-mips/."
+
+cp ../../../include/asm-generic/bitsperlong.h ../../../include/asm-mips/
+
+chmod u+w ../../../include/asm-mips/bitsperlong.h
+
+exit 0

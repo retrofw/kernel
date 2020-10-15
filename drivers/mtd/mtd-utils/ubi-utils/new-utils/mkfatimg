@@ -1,0 +1,74 @@
+#!/bin/sh
+
+if [ $# != 4 ]
+then
+	echo "Usage:"
+	echo "	`basename $0` pagesize ppb mtd_size fat.img"
+	echo ""
+	echo "	pagesize:	min I/O size, same as pagesize"
+	echo "	ppb:		page num per block"
+	echo "	mtd_size:	mtd partition(for vfat) size (MB)"
+	echo "	fat.img:	output file name"
+	echo ""
+	echo "Example:"
+	echo "	`basename $0` 4096 128 512 fat.img"
+	exit 1
+fi
+
+min_io=$1	# same as pagesize
+ppb=$2		# page per block
+mtd_size=$3
+out_file=$4
+
+echo "make vfat image ..."
+
+peb_size=$(($min_io*$ppb))
+leb_size=$(($peb_size-$min_io-$min_io))
+leb_num=$(($mtd_size*1024*1024/$peb_size))
+file_name=`basename $out_file`
+vol_name=${file_name%%.*}
+vol_id=8
+
+orig_out_file=drivers/mtd/mtd-utils/ubi-utils/new-utils/vfat.img
+sec_out_file=drivers/mtd/mtd-utils/ubi-utils/new-utils/sec_vfat.img
+
+dd if=/dev/zero of=$orig_out_file bs=1 count=8192
+
+cd drivers/mtd/mtd-utils/ubi-utils/new-utils/
+
+if [ ! -d new-utils-dir-x86 ]
+then
+	make ARCH=x86
+fi
+
+cd - > /dev/null
+
+drivers/mtd/mtd-utils/ubi-utils/new-utils/new-utils-dir-x86/ubirefimg $orig_out_file $sec_out_file $leb_size
+
+
+# prepare configuration ini-file
+vol_size=$((($leb_num*99/100-4)*$leb_size/1024/1024))MiB
+
+echo "vol_size = $vol_size"
+
+ini_file=ubi_fat.ini
+
+cat > $ini_file << End-of-ini
+[ubifs]
+mode=ubi
+image=$sec_out_file
+vol_id=$vol_id
+vol_size=$vol_size
+vol_type=dynamic
+vol_name=$vol_name
+vol_alignment=1
+vol_flag=autoresize
+End-of-ini
+
+drivers/mtd/mtd-utils/ubi-utils/new-utils/new-utils-dir-x86/ubinize -v -o $out_file $ini_file -p $peb_size -m $min_io
+
+rm -fr $sec_out_file $ini_file
+
+ls -hl $out_file
+
+echo "make vfat image done."

@@ -1,0 +1,64 @@
+config SND_SOC_AC97_CODEC
+	tristate
+	depends on SND_SOC
+
+config SND_SOC_WM8731
+	tristate
+	depends on SND_SOC
+
+config SND_SOC_WM8750
+	tristate
+	depends on SND_SOC
+
+config SND_SOC_WM8753
+	tristate
+	depends on SND_SOC
+
+config SND_SOC_WM9712
+	tristate
+	depends on SND_SOC
+
+# Cirrus Logic CS4270 Codec
+config SND_SOC_CS4270
+	tristate
+	depends on SND_SOC
+
+# Cirrus Logic CS4270 Codec Hardware Mute Support
+# Select if you have external muting circuitry attached to your CS4270.
+config SND_SOC_CS4270_HWMUTE
+	bool
+	depends on SND_SOC_CS4270
+
+# Cirrus Logic CS4270 Codec VD = 3.3V Errata
+# Select if you are affected by the errata where the part will not function
+# if MCLK divide-by-1.5 is selected and VD is set to 3.3V.  The driver will
+# not select any sample rates that require MCLK to be divided by 1.5.
+config SND_SOC_CS4270_VD33_ERRATA
+	bool
+	depends on SND_SOC_CS4270
+
+config SND_SOC_ICODEC
+	tristate "Jz4740 internal codec"
+	depends on SND_SOC && SND_JZ4740_SOC_PAVO && SND_JZ4740_SOC_I2S
+	help
+	  Say Y if you want to use internal codec on Ingenic Jz4740 PAVO board.
+
+config SND_SOC_DLV
+	tristate "Jz4750 internal codec"
+	depends on SND_SOC && SND_JZ4750_SOC_APUS && SND_JZ4750_SOC_I2S
+	help
+	  Say Y if you want to use internal codec on Ingenic Jz4750 APUS board.
+
+config SND_SOC_ICDC
+	tristate "Jz4760 internal codec"
+	depends on SND_SOC && SND_JZ4760_SOC_LEPUS && SND_JZ4760_SOC_I2S
+	help
+	  Say Y if you want to use internal codec on Ingenic Jz4760 LEPUS board.
+
+config SND_SOC_JZ4760_ICDC
+	tristate
+	depends on SND_SOC
+
+config SND_SOC_JZ4770_ICDC
+	tristate
+	depends on SND_SOC

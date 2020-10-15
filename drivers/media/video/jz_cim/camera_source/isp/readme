@@ -1,0 +1,6 @@
+
+This driver is for corelogic isp+samsung_sensor.
+Corelogic isp need fw for sensor.
+the fw is given to us as a bin file ,so we write the tran_data to make it becomea  file data.h .
+
+George Zhang

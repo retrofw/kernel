@@ -1,0 +1,7 @@
+nandcorr.o: src/nandcorr.c src/nandecc.h \
+  /opt/mipseltools-gcc412-glibc261/lib/gcc/mipsel-linux/4.1.2/../../../../mipsel-linux/include/stdint.h \
+  /opt/mipseltools-gcc412-glibc261/lib/gcc/mipsel-linux/4.1.2/../../../../mipsel-linux/include/features.h \
+  /opt/mipseltools-gcc412-glibc261/lib/gcc/mipsel-linux/4.1.2/../../../../mipsel-linux/include/sys/cdefs.h \
+  /opt/mipseltools-gcc412-glibc261/lib/gcc/mipsel-linux/4.1.2/../../../../mipsel-linux/include/bits/wordsize.h \
+  /opt/mipseltools-gcc412-glibc261/lib/gcc/mipsel-linux/4.1.2/../../../../mipsel-linux/include/gnu/stubs.h \
+  /opt/mipseltools-gcc412-glibc261/lib/gcc/mipsel-linux/4.1.2/../../../../mipsel-linux/include/bits/wchar.h

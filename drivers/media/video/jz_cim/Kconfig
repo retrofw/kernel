@@ -1,0 +1,112 @@
+choice
+	prompt "Select cim output format"
+	depends on VIDEO_JZ_CIM && SOC_JZ4780
+	default VIDEO_JZ_CIM_OUT_FMT_BYPASS
+
+config VIDEO_JZ_CIM_OUT_FMT_BYPASS
+	bool 'Bypass Mode'
+
+#config VIDEO_JZ_CIM_OUT_FMT_YUV444
+#	bool 'CSC to YUV444'
+
+config VIDEO_JZ_CIM_OUT_FMT_YUV422
+	bool 'CSC to YUV422'
+
+config VIDEO_JZ_CIM_OUT_FMT_YUV420
+	bool 'CSC to YUV420'
+
+endchoice
+
+choice
+	prompt "Select cim input format(eg. sensor output format)"
+	depends on VIDEO_JZ_CIM
+	default VIDEO_JZ_CIM_IN_FMT_YUV422
+
+config	VIDEO_JZ_CIM_IN_FMT_YUV444
+	bool 'YUV444'
+
+config	VIDEO_JZ_CIM_IN_FMT_YUV422
+	bool 'YUV422'
+
+config	VIDEO_JZ_CIM_IN_FMT_ITU656
+	bool 'ITU656'
+
+#config	VIDEO_JZ_CIM_IN_FMT_RGB565
+#	bool 'RGB565'
+#	depends on VIDEO_JZ_CIM_OUT_FMT_BYPASS
+
+endchoice
+
+choice
+	prompt "Select camera sensor"
+	depends on VIDEO_JZ_CIM
+	default VIDEO_OV3640
+
+config VIDEO_GC0303
+	bool "GalaxyCore 0303 sensor support"
+	depends on VIDEO_JZ_CIM
+
+config VIDEO_GC0308
+	bool "GalaxyCore 0308 sensor support"
+	depends on VIDEO_JZ_CIM
+
+config VIDEO_GC0307
+	bool "GalaxyCore 0307 sensor support"
+	depends on VIDEO_JZ_CIM
+
+config VIDEO_BF3703
+	bool "OmniVision VIDEO_BF3703 sensor support (0.3 MegaPixel)"
+	depends on VIDEO_JZ_CIM
+config VIDEO_OV3640
+	bool "OmniVision VIDEO_OV3640 sensor support (3.1 MegaPixel)"
+	depends on VIDEO_JZ_CIM
+config VIDEO_OV2655
+	bool "OmniVision VIDEO_OV2655 sensor support (2.0 MegaPixel)"
+	depends on VIDEO_JZ_CIM
+config VIDEO_CM3511
+	bool "CM3511 sensor support (0.3 MegaPixel)"
+	depends on VIDEO_JZ_CIM
+
+config VIDEO_OV2640
+	bool "OmniVision VIDEO_OV2640 sensor support (2.0 MegaPixel)"
+	depends on VIDEO_JZ_CIM
+config VIDEO_OV9650
+	bool "OmniVision VIDEO_OV9650 sensor support (1.3 MegaPixel)"
+	depends on VIDEO_JZ_CIM
+config VIDEO_OV7690
+	bool "OmniVision VIDEO_OV7690 sensor support (0.3 MegaPixel)"
+	depends on VIDEO_JZ_CIM
+config VIDEO_ISP
+	bool "Corelogic isp with SamSung S5K sensor support (3.1 MegaPixel)"
+	depends on VIDEO_JZ_CIM && JZ_I2C_SIMULATE
+config VIDEO_JZ_FAKE_SENSOR
+	bool "jz fake sensor support (3.1 MegaPixel)"
+	depends on VIDEO_JZ_CIM
+config VIDEO_JZ_TVP5150
+	bool "TVP5150 video decorder"
+	depends on VIDEO_JZ_CIM
+endchoice
+
+config VIDEO_JZ_CIM_VA
+	bool 'Use Virtual Address'
+	depends on VIDEO_JZ_CIM && SOC_JZ4780
+	default n
+	help
+	Use Virtual Address instead of Physical Address for Jz4780 CIM.
+	
+config VIDEO_JZ_CIM_MB
+	bool 'Use Macro Block'
+	depends on VIDEO_JZ_CIM && VIDEO_JZ_CIM_OUT_FMT_YUV420 && SOC_JZ4780
+	default n
+	help
+	Enable Macro Block Mode for CIM output format YCbCr420.
+
+config VIDEO_JZ_CIM_FSC
+	bool 'Enable Frame Size Check'
+	depends on VIDEO_JZ_CIM && SOC_JZ4780
+	default y
+
+config VIDEO_JZ_CIM_ARIF
+	bool 'Enable Auto Recovery for Incomplete Frame'
+	depends on VIDEO_JZ_CIM && VIDEO_JZ_CIM_FSC && SOC_JZ4780
+	default y

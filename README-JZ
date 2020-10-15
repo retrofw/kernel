@@ -1,0 +1,1181 @@
+		
+		Linux 2.6 Kernel Release for Ingenic
+
+		  (Updated: 2008-12-29)
+
+-------------
+** Content **
+-------------
+
+** Quick start **
+** Supported SOC and Platforms **
+** Overview of source tree **
+** NAND Flash Filesystem **
+** UBI, UBIFS and UBI Block Layer **
+** UBI and UBIFS images **
+** YAFFS2 **
+** MTD Block Layer **
+** About Bad Blocks of NAND **
+** SLC and MLC NAND Flash **
+** Initramfs **
+** Audio full duplex mode **
+** Support **
+
+
+-----------------
+** Quick Start **
+-----------------
+
+To build linux 2.6, you needs a mipsel-linux-gcc version 4. Please
+download it from Ingenic website http://www.ingenic.cn.
+
+You should have downloaded the linux-2.6.24.3.tar.bz2 and the latest kernel 
+patch. The patch file was named as "linux-2.6.24.3-jz-yyyymmdd.patch.gz".
+
+Follow next steps to install the full kernel source:
+
+    $ tar -xjf linux-2.6.24.3.tar.bz2
+    $ cd linux-2.6.24.3
+    $ gzip -cd ../linux-2.6.24.3-jz-yyyymmdd.patch.gz | patch -p1
+
+Now you can configure and build the kernel.
+
+First, you need to do a 'make board_defconfig' to select a board.
+
+For example:
+
+  - make pavo_defconfig	  # JZ4740 PAVO board default configuration
+  - make pmp_defconfig    # JZ4730 PMP ver 2.x board default configuration
+  - make dipper_defconfig    # JZ4725 PMP ver 1.x board default configuration
+
+Then, configure and compile the kernel:
+
+  - make xconfig or make menuconfig, if you want to change the configuration.
+  - make, make uImage, or make zImage, to build the kernel.
+
+The ELF format kernel image is linux-2.6.24.3/vmlinux.
+The U-Boot format kernel image is linux-2.6.24.3/arch/mips/boot/uImage.
+The compressed raw kernel image is linux-2.6.24.3/arch/mips/boot/compressed/zImage.
+
+
+---------------------------------
+** Supported SOC and Platforms **
+---------------------------------
+
+This release supports several platforms based on JZ4730, JZ4740 and JZ4750.
+
+JZ4750 based platforms:
+
+  - apus: JZ4750 development board
+ 
+JZ4740 based platforms:
+
+  - pavo: JZ4740 reference board
+  - leo: JZ4740 development board
+
+JZ4730 based platforms:
+
+  - pmp: JZ4730 reference board version 2.x
+
+JZ4725 based platforms:
+
+  - dipper: JZ4725 reference board version 1.x
+
+
+-----------------------------
+** Overview of source tree **
+-----------------------------
+
+  - Changelog			: Revision history
+  - README-JZ			: This file
+  - arch/mips/
+      - kernel/			: MIPS kernel common code
+      - mm/			: MIPS memory common code
+      - jz4730/			: JZ4730 code
+      - jz4740/			: JZ4740 JZ4725 JZ4720 code
+      - jz4750/	                : JZ4750 code
+      - configs/
+          - apus_defconfig	: jz4750 based apus default configuration
+          - pavo_defconfig	: jz4740 based pavo default configuration
+          - pmp_defconfig	: jz4730 based pmp default configuration
+          - dipper_defconfig	: jz4725 based dipper default configuration
+  - include/asm-mips/		: MIPS asm common include
+      - jzsoc.h			: JZ SoC common include
+      - mach-jz4730/		: JZ4730 SoC headers
+      - mach-jz4740/		: JZ4740 JZ4725 JZ4720 SoC headers
+      - mach-jz4750/		: JZ4750 SoC headers
+  - fs/
+      - jffs2/			: JFFS2 file system
+      - yaffs2/			: YAFFS2 file system
+          - utils/		: YAFFS2 utilities, like mkyaffs2image
+      - ubifs/			: ubifs file system
+          - mkfs.ubifs/		: mkfs.ubifs util to create UBIFS
+  - sound/
+      oss/			: OSS audio driver
+      soc/jz4740/		: JZ4740 ALSA audio driver
+  - drivers/
+      - char/
+          - serial.c		: serial port driver
+          - rtc_pcf8563.c	: PCF8563 RTC driver
+          - rtc_jz.c		: JZSOC On-Chip RTC driver
+          - jzchar/		: jzchar devices
+	     - jz_ts.c		: generic touch screen driver
+	     - sadc.c		: JZ4740 SADC driver
+             - ak4182.c		: AK4182 touch driver
+ 	     - udc_hotplug.c	: UDC hotplug management
+	     - poweroff.c	: suspend/poweroff management
+      - input/keyboard/
+          - jz_keypad.c         : scan keypad driver
+          - gpio_keys.c         : gpio keypad driver
+      - media/video/
+	  - jz_cim.c		: generic camera driver
+	  - jz_sensor.c		: generic sensor driver
+      - mmc/host/
+	  - jz_mmc.c		: jz mmc/sd card driver
+      - mtd/
+          - mtdblock-jz.c	: NAND Flash translation layer driver
+          - nand/
+             - nand_base.c	: NAND flash interface to MTD
+             - jz4730_nand.c	: NAND flash definition on JZ4730 boards
+             - jz4740_nand.c	: NAND flash definition on JZ4740 boards
+             - jz4750_nand.c	: NAND flash definition on JZ4750 boards
+          - ubi/		: MTD utilities like flash_eraseall, nandwrite etc.
+             - ubiblk.c		: UBI block layer driver on top of UBI
+          - mtd-utils/		: MTD and UBI utilities, like flash_eraseall, nandwrite and ubimkvol etc.
+             - ubi-utils	: UBI utils like ubimkvol/ubirmvol/ubinize etc.
+      - net/
+          - jz_eth.c		: JZ4730 On-Chip ethernet driver
+          - jzcs8900a.c		: cs8900a ethernet driver
+      - serial/
+	  - 8250.c		: standard 16550A serial driver
+      - usb/			: USB OHCI host driver
+	  - usb/host/
+	     ohci-jz.c		: JZ OHCI driver
+      - usb/gadget/
+          - jz4730_udc.c	: JZ4730 UDC low-level driver
+          - jz4740_udc.c	: JZ4740 and JZ4750 UDC low-level driver
+          - file_storage.c	: USB mass storage class driver
+          - serial.c		: USB serial class driver
+      - video/
+          - jzlcd.c		: JZ LCD controller framebuffer driver for JZ4730 and JZ4740
+          - jz4740_slcd.c       : JZ Smart LCD controller framebuffer driver for JZ4740
+          - jz4750_lcd.c        : JZ LCD and Smart LCD controller driver for JZ4750
+          - jz4750_tve.c        : JZ TV encoder controller driver for JZ4750
+     - watchdog/
+	  - jz_wdt.c		: JZ On-Chip watchdog driver
+
+
+---------------------------
+** NAND Flash Filesystem **
+---------------------------
+
+NAND Flash is the main non-volatile storage for most embedded devices. 
+So, it's very important to implement a stable and reasonable filesystem on
+NAND flash.
+
+In Linux, the MTD subsystem provides a common interface for operating with
+many flash devices, such as NOR, NAND etc. And the MTD subsystem was modified
+by Ingenic to support the NAND larger than 2GB.
+
+Above MTD layer, we can implement the YAFFS2 filesystem. Or we can implement
+a MTD block device, on top of it we can implement the general filesystem
+such as FAT and EXT2.
+
+The Linux 2.6 kernel also implements the UBI (Unsorted Block Images). UBI
+is a software layer above MTD layer which admits of LVM-like logical volumes
+on top of MTD devices, hides some complexities of flash chips like wear 
+and bad blocks and provides some other useful capabilities. Please, consult
+the MTD web site for more details (www.linux-mtd.infradead.org).
+
+On top of UBI, we can implement the UBIFS filesystem. We can also emulate 
+block devices above UBI, such that we can use the general filesystem such as
+FAT and EXT2 on it.
+
+The architecture of the NAND flash filesystem is illustrated as below:
+
+
+
+  +-----------+      +-------------+          +-------------+
+  |  YAFFS2   |      |    UBIFS    |          | FAT or EXT2 |	Filesystems
+  +-----------+      +-------------+          +-------------+
+      \                    |                    /       \
+       \                   |                   /         \
+        \                  |                  /           \
+         \                 |    +-----------------+  +-----------------+
+          \                |    | UBI Block Layer |  | MTD Block Layer |
+           \               |    +-----------------+  +-----------------+
+            \              |      /                    /
+             \             |     /                    /
+              \      +-------------+                 /
+               \     |     UBI     |                /
+                \    +-------------+               /
+                 \          |                     /
+         +-------------------------------------------+
+         |                 MTD                       |
+         +-------------------------------------------+
+                            |
+                  +--------------------+
+                  |     nand_base.c    |
+                  +--------------------+
+                            |
+                  +--------------------+
+                  |     jz4740_nand.c  |
+                  +--------------------+
+
+
+The related source codes are listed below:
+
+fs/yaffs2:			YAFFS2
+fs/ubifs:			UBIFS
+fs/fat:				FAT
+fs/ext2:			EXT2
+drivers/mtd:			MTD
+drivers/mtd/ubi:		UBI
+drivers/mtd/ubi/ubiblk.c:	UBI Block Layer
+drivers/mtd/mtdblock-jz.c:	MTD Block Layer
+drivers/mtd/mtd-utils:		MTD and UBI utils (flash_eraseall/ubimkvol/ubinfo/ubinize etc.)
+fs/ubifs/mkfs.ubifs:		UBIFS util to create ubifs image (mkfs.ubifs)
+fs/yaffs2/util:			YAFFS2 util (mkyaffs2image)
+
+To build mtd utils, go to drivers/mtd/mtd-utils, type 'make' and
+'make install DESTDIR=/nfsroot/root26'.
+
+To build yaffs2 util, go to fs/yaffs2/utils and type 'make'.
+
+To build ubifs util, go to fs/ubifs/mkfs.ubifs and type 'make'.
+
+Except 'UBI Block Layer' and 'MTD Block Layer', which are implement by Ingenic
+ourself, the others are general in the linux kernel tree.
+
+User can select any one of these drivers to implement the filesystem. It all
+depends on yourself.
+
+Following sections will describe how to use these drivers in details.
+
+
+------------------------------------
+** UBI, UBIFS and UBI Block Layer **
+------------------------------------
+
+UBIFS is a new flash file system which is designed to work on top of UBI. 
+
+Here is a short and unsorted list of some of UBIFS features:
+
+* write-back support - This dramatically improves the throughput of the 
+file-system comparing to JFFS2, which is write-through; 
+
+* fast mount time
+
+* tolerance to unclean reboots - UBIFS is a journaling file system and it 
+tolerates sudden crashes and unclean reboots;
+
+* fast I/O - even with write-back disabled;
+
+* on-the-flight compression - the data is stored in compressed form on 
+the flash media, which makes it possible to put considerably more data to
+the flash as if the data would not be compressed;
+
+Please, consult the MTD web site for more details (www.linux-mtd.infradead.org).
+
+The UBI and UBIFS can be compiled as modules or built into the kernel.
+
+To enable UBI, you need to select following configurations:
+
+CONFIG_MTD_UBI:			Enable UBI
+CONFIG_MTD_UBI_WL_THRESHOLD:	UBI wear-leveling threshold
+CONFIG_MTD_UBI_BEB_RESERVE:	Percentage of reserved eraseblocks for bad eraseblocks handling
+
+To enable 'UBI Block Layer', you need to select following configurations:
+
+CONFIG_MTD_UBI_BLKDEVS:		Common interface to block layer for UBI
+CONFIG_MTD_UBI_BLOCK:		Emulate block devices
+
+To enable UBIFS, you need to select following configurations:
+
+CONFIG_UBIFS_FS:		UBIFS file system support
+CONFIG_UBIFS_COMPRESSION_OPTIONS:	Advanced compression options for UBIFS
+CONFIG_UBIFS_LZO:		UBIFS LZO compression support
+CONFIG_UBIFS_ZLIB:		UBIFS ZLIB compression support
+CONFIG_UBIFS_FS_DEBUG:		UBIFS debugging
+
+If you want to compile as modules, take next steps:
+
+Type 'make modules' to compile the modules.
+
+Type 'make modules_install INSTALL_MOD_PATH=/nfsroot/root26' to install the
+modules to the target root.
+
+You also need to compile the MTD and UBIFS utilities and install them to the
+target root.
+
+
+Now boot your board and mounted root FS with these modules, and below is a
+simple guide to test and use the UBIFS and 'UBI Block Layer':
+
+Here we will create UBI volumes on mtd5.
+
+First, format mtd5:
+
+# flash_eraseall /dev/mtd5
+Erasing 256 Kibyte @ 1ffc0000 -- 99 % complete.
+
+Install UBI module, attached it to mtd5:
+
+# modprobe ubi mtd=5
+UBI: empty MTD device detected
+UBI: create volume table (copy #1)
+UBI: create volume table (copy #2)
+UBI: attached mtd5 to ubi0
+UBI: MTD device name:            "NAND VFAT partition"
+UBI: MTD device size:            512 MiB
+UBI: physical eraseblock size:   262144 bytes (256 KiB)
+UBI: logical eraseblock size:    258048 bytes
+UBI: number of good PEBs:        2048
+UBI: number of bad PEBs:         0
+UBI: smallest flash I/O unit:    2048
+UBI: VID header offset:          2048 (aligned 2048)
+UBI: data offset:                4096
+UBI: max. allowed volumes:       128
+UBI: wear-leveling threshold:    4096
+UBI: number of internal volumes: 1
+UBI: number of user volumes:     0
+UBI: available PEBs:             2024
+UBI: total number of reserved PEBs: 24
+UBI: number of PEBs reserved for bad PEB handling: 20
+UBI: max/mean erase counter: 0/0
+UBI: background thread "ubi_bgt0d" started, PID 241
+
+Now, create two UBI volumes, one is called ubifs and size is 200MB, the
+other is called vfat and size is 298MB.
+
+# ubimkvol /dev/ubi0 -s 200MiB -N ubifs
+Volume ID 0, size 813 LEBs (209793024 bytes, 200.1 MiB), LEB size 258048 bytes (252.0 KiB), dynamic, name "ubifs", alignment 1
+# ubimkvol /dev/ubi0 -s 298MiB -N vfat 
+Volume ID 1, size 1211 LEBs (312496128 bytes, 298.0 MiB), LEB size 258048 bytes (252.0 KiB), dynamic, name "vfat", alignment 1
+
+Then you can use 'ubinfo' to query the UBI volume info:
+
+# ubinfo -a
+UBI version:                    1
+Count of UBI devices:           1
+UBI control device major/minor: 10:63
+Present UBI devices:            ubi0
+
+ubi0:
+Volumes count:                           2
+Logical eraseblock size:                 258048
+Total amount of logical eraseblocks:     2048 (528482304 bytes, 504.0 MiB)
+Amount of available logical eraseblocks: 0 (0 bytes)
+Maximum count of volumes                 128
+Count of bad physical eraseblocks:       0
+Count of reserved physical eraseblocks:  20
+Current maximum erase counter value:     3
+Minimum input/output unit size:          2048 bytes
+Character device major/minor:            252:0
+Present volumes:                         0, 1
+
+Volume ID:   0 (on ubi0)
+Type:        dynamic
+Alignment:   1
+Size:        813 LEBs (209793024 bytes, 200.1 MiB)
+State:       OK
+Name:        ubifs
+Character device major/minor: 252:1
+-----------------------------------
+Volume ID:   1 (on ubi0)
+Type:        dynamic
+Alignment:   1
+Size:        1211 LEBs (312496128 bytes, 298.0 MiB)
+State:       OK
+Name:        vfat
+Character device major/minor: 252:2
+
+
+It shows that we have successfully created two UBI volumes (Volume ID 0 and 1)
+on ubi0.
+
+Now you can install the UBIFS and 'UBI Block Layer' modules and create
+UBIFS and FAT on UBI volume 0 and 1 respectively.
+
+# modprobe ubifs
+# modprobe ubiblk
+
+# lsmod
+Module                  Size  Used by    Not tainted
+ubiblk                  7696  0 
+bdev                   10016  1 ubiblk
+deflate                 4256  1 
+zlib_deflate           22256  1 deflate
+zlib_inflate           16992  1 deflate
+lzo                     2400  1 
+lzo_decompress          2816  1 lzo
+lzo_compress            2848  1 lzo
+ubifs                 208560  0 
+crc16                   2048  1 ubifs
+ubi                   103664  4 ubiblk,bdev,ubifs
+
+Mount UBI volume 0 (the name is "ubifs") on ubi0 with type ubifs:
+
+# mount -t ubifs ubi0:ubifs /mnt/ubifs/
+UBIFS: mounted UBI device 0, volume 0
+UBIFS: minimal I/O unit size:   2048 bytes
+UBIFS: logical eraseblock size: 258048 bytes (252 KiB)
+UBIFS: file system size:        207212544 bytes (202356 KiB, 197 MiB, 803 LEBs)
+UBIFS: journal size:            9420800 bytes (9200 KiB, 8 MiB, 37 LEBs)
+UBIFS: data journal heads:      1
+UBIFS: default compressor:      LZO
+
+It shows that we have mounted it sucessfully.
+
+Format /dev/ubiblock1 (the block device for UBI volume 1) and mount it with
+type vfat:
+
+# mkfs.vfat /dev/ubiblock1
+# mount -t vfat /dev/ubiblock1 /mnt/ubiblock1
+
+Please refer to the linux26_developer_guide.pdf for more details about
+the UBI and UBIFS.
+
+
+--------------------------
+** UBI and UBIFS images **
+--------------------------
+
+Generally, you want to create UBIFS and VFAT images respectively and combine
+these two images into one single image, and then use the nandwrite command
+to write this image to the MTD partition.
+
+First of all, you need to compile the mkfs.ubifs utility. We use mkfs.ubifs
+to create the UBIFS image, like this:
+
+Note: download the linux-nand-utils.tar.gz package from www.ingenic.cn and
+follows the guide to compile and run the mkfs.ubifs.
+
+On the PC host:
+
+$ mkfs.ubifs -h
+Usage: mkfs.ubifs [OPTIONS]
+Make a UBIFS file system image from an existing directory tree
+
+Options:
+  -r, -d, --root=DIR      Build file system from directory DIR
+  -m, --min-io-size=SIZE  Minimum I/O size SIZE
+  -e, --leb-size=SIZE     Use logical erase block size SIZE
+  -c, --max-leb-cnt=COUNT Use maximum logical erase block count COUNT
+  -o, --output=FILE       Output to FILE
+  -j, --jrn-size=SIZE     Use journal size SIZE bytes
+  -x, --compr=TYPE        Use compression type TYPE (lzo, zlib or none) (default: lzo)
+  -f, --fanout=NUM        Use fanout NUM (default: 8)
+  -k, --keyhash=TYPE      Use key hash type TYPE (r5 or test) (default: r5)
+  -l, --log-lebs=COUNT    Use COUNT erase blocks for the log
+  -p, --orph-lebs=COUNT   Use COUNT erase blocks for orphans (default: 1)
+  -v, --verbose           Verbose operation
+  -V, --version           Display version information
+  -g, --debug=LEVEL       Display debug information
+  -h, --help              Display this help text
+
+$ mkfs.ubifs -r /nfsroot/root26 -m 2048 -e 258048 -c 813 -o ubifs.img
+
+This will create an UBIFS image called ubifs.img. The argument values
+can be obtained from the 'ubinfo -a' command.
+
+Follow next steps to create a 30MB FAT32 image called vfat.img:
+
+# dd if=/dev/zero of=vfat.img bs=1M count=30
+# losetup /dev/loop0 vfat.img
+# mkfs.vfat /dev/loop0
+# mount -t vfat /dev/loop0 /mnt/vfat
+# cp * /mnt/vfat
+# umount  /mnt/vfat
+# losetup -d /dev/loop0
+
+Now the two images ubifs.img and vfat.img are ready, and we want to
+create two UBI volumes and write these two images to the two UBI volumes
+respectively. We can do like this:
+
+First, use 'ubinize' command to combine ubifs.img and vfat.img into one
+UBI image called ubi.img.
+
+Second, use 'nandwrite_mlc_ubi' command to write the ubi.img to the
+MTD partition.
+
+To use 'ubinize' command, you should prepare an INI file for it. The
+content of the INI file are as below:
+
+# cat ubinize.cfg 
+[ubifs]
+mode=ubi
+image=ubifs.img
+vol_id=0
+vol_size=200MiB
+vol_type=dynamic
+vol_name=ubifs
+vol_alignment=1
+vol_flag=autoresize
+
+[vfat]
+mode=ubi
+image=vfat.img
+vol_id=1
+vol_size=298MiB
+vol_type=dynamic
+vol_name=vfat
+vol_alignment=1
+vol_flag=autoresize
+
+
+Now you can boot your board and follow next guides to create the UBI
+image and burn the UBI image.
+
+On the target board side:
+
+# ubinize -o ubi.img ubinize.cfg -p 262144 -m 2048
+
+If things go well, you can get the UBI image ubi.img. 
+
+Then use 'nandwrite_ubi' command to write it to the MTD partition.
+
+# flash_eraseall /dev/mtd5
+# nandwrite_ubi -a -q -m /dev/mtd5 ubi.img
+
+Now the UBI image has been written to the NAND mtd5 partition.
+
+Use next commands to test it.
+
+# modprobe ubi mtd=5
+
+# ubinfo -a
+UBI version:                    1
+Count of UBI devices:           1
+UBI control device major/minor: 10:63
+Present UBI devices:            ubi0
+
+ubi0:
+Volumes count:                           2
+Logical eraseblock size:                 258048
+Total amount of logical eraseblocks:     2048 (528482304 bytes, 504.0 MiB)
+Amount of available logical eraseblocks: 0 (0 bytes)
+Maximum count of volumes                 128
+Count of bad physical eraseblocks:       0
+Count of reserved physical eraseblocks:  20
+Current maximum erase counter value:     1
+Minimum input/output unit size:          2048 bytes
+Character device major/minor:            252:0
+Present volumes:                         0, 1
+
+Volume ID:   0 (on ubi0)
+Type:        dynamic
+Alignment:   1
+Size:        813 LEBs (209793024 bytes, 200.1 MiB)
+State:       OK
+Name:        ubifs
+Character device major/minor: 252:1
+-----------------------------------
+Volume ID:   1 (on ubi0)
+Type:        dynamic
+Alignment:   1
+Size:        1211 LEBs (312496128 bytes, 298.0 MiB)
+State:       OK
+Name:        vfat
+Character device major/minor: 252:2
+
+
+This shows that two UBI volumes are present on ubi0.
+
+# modprobe ubifs
+# mount -t ubifs ubi0:ubifs /mnt/ubifs/
+UBIFS: mounted UBI device 0, volume 0
+UBIFS: minimal I/O unit size:   2048 bytes
+UBIFS: logical eraseblock size: 258048 bytes (252 KiB)
+UBIFS: file system size:        207212544 bytes (202356 KiB, 197 MiB, 803 LEBs)
+UBIFS: journal size:            9420800 bytes (9200 KiB, 8 MiB, 37 LEBs)
+UBIFS: data journal heads:      1
+UBIFS: default compressor:      LZO
+
+# modprobe ubiblk
+# mount -t vfat /dev/ubiblock1 /mnt/ubiblock1
+
+# df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+tmpfs                    30196        56     30140   0% /dev
+ubi0:ubifs              197536     48228    149308  24% /mnt/ubifs
+/dev/ubiblock1           30642      5762     24880  19% /mnt/ubiblock1
+
+It shows that the UBIFS and VFAT are all mounted successfully.
+
+
+------------
+** YAFFS2 **
+------------
+
+YAFFS (Yet Another Flash File System) was written to satisfy the 
+special needs of NAND flash. The second release of YAFFS especially 
+points to supporting newer NAND flash chips with 2k page size and 
+up to 128MB capacity.
+
+YAFFS2 is supported in this kernel. It's built on top of MTD directly.
+Go to fs/yaffs2 for more details.
+
+To build the utility of YAFFS2, change to directory fs/yaffs2/utils/
+and type 'make'.
+
+To create a YAFFS2 image, mkyaffs2image command is used On PC host:
+
+    usage: mkyaffs2image layout# dir image_file [convert]
+
+	layout#     NAND OOB layout:
+                    0 - nand_oob_raw, no used, 
+                    1 - nand_oob_64, for 2KB pagesize, 
+                    2 - nand_oob_128, for 2KB pagesize using multiple planes or 4KB pagesize,
+                    3 - nand_oob_256, for 4KB pagesize using multiple planes
+	dir         the directory tree to be converted
+	image_file  the output file to hold the image
+
+  e.g., for 2KB page size NAND not using multi-plane:
+
+  $ mkyaffs2image 1 /nfsroot/root26 root26.yaffs2
+
+To burn the yaffs2 image to the NAND, use next command (On target board):
+
+  # nandwrite -a -o /dev/mtd2 root26.yaffs2
+
+To format and mount YAFFS2 (On target board):
+
+  # flash_eraseall /dev/mtd2
+  # mount -t yaffs2 /dev/mtdblock2 /mnt/mtdblock2
+
+
+---------------------
+** MTD Block Layer **
+---------------------
+
+Ingenic implement the 'MTD Block Layer' by ourself. This gives you a choice
+to implement a general filesystem such as FAT and ext2 on NAND flash.
+
+Which partition used for VFAT should be set in bootargs of u-boot for kernel cmdline,
+so the kernel kowns other partitions aren't base on MTD Block Layer, and their mounting
+speed will be faster. For example, if mtdblock5 is used for VFAT, you can
+
+set bootargs mem=64M console=ttyS1,57600n8 ip=dhcp root=/dev/mtdblock2 rw mtdblk=5
+
+and the mounting speed of mtdblock2 which is not based on MTD Block Layer will be faster.
+
+
+Features of the 'MTD Block Layer' include:
+
+1. Block unit management (address mapping & block cache operations)
+2. Wear-leveling 
+3. Bad block management
+4. Write verify enable 
+5. mutiple choice of ECC algorithms (hardware Hamming ECC & Reed Solomon ECC, 
+software Hamming ECC)
+
+Kernel configurations related to the 'MTD Block Layer':
+
+* CONFIG_MTD_OOB_COPIES: defines how many copies of the critical oob data for
+  each block. Since the page data can be corrected by the ECC algorithm but 
+  the oob data can't, we want to ensure the correction of the oob data by this
+  way. The mtdblock-jz translation layer driver uses block mode to manipulate
+  the NAND flash. It makes several copies of the oobinfo data for each block, 
+  so that it can get a correct copy even there is an error in one of them.
+
+* CONFIG_MTD_MTDBLOCK_WRITE_VERIFY_ENABLE: defines this to enable the write
+  verification function, which will read back data to verify during a write
+  operation.
+
+Take following steps to use the 'MTD Block Layer':
+
+  # flash_eraseall /dev/mtd3
+  # mkfs.vfat /dev/mtdblock3
+  # mount -t vfat /dev/mtdblock3 /mnt/vfat
+
+
+NOTICE:
+
+You can define mutiple VFAT partitions, all the VFAT partitions share
+the same above configurations.
+
+Each VFAT partition have its own block cache which resides only in RAM. 
+Generally, the block cache flush operation is triggered when the access
+address exceeds block boundary. The last block cache usually will be 
+flushed to NAND device when the device is closed (eg: umount /mnt/vfat;
+use system call close(fd)).
+
+Abrupt poweroff without flushing the last block cache will cause the 
+VFAT partition to lose the most significant data which records the 
+information of the file system management such as FAT table, inodes ...
+
+To avoid this bad thing, you have to flush block cache as soon as possible. 
+Please do remember to flush block cache manually when you finish 
+a write operation.
+
+The MTD block layer driver supplys an ioctl for triggering flush block cache 
+operation. The code attached behind is a reference for you to use.
+ 
+eg:	
+
+  # cp * /mnt/vfat
+  # sync			; this step is necessary to flush the FS cache
+  # flushcache /dev/mtdblock3	; this step is necessary to flush the NFTL block cache
+
+
+/* flushcache.c  */
+#include <sys/ioctl.h>
+#include <linux/fs.h>
+#include <fcntl.h>
+#include <stdio.h>
+
+int main(int argc,char **argv) 
+{ 
+	int fd; 
+
+	if( argc != 2 ){ 
+		printf( "Usage:%s device name(full path)\n", argv[0] ); 
+		return -1; 
+	} 	
+
+	if( (fd = open( argv[1], O_RDONLY ) ) == -1) { 
+		printf( "Open %s failed\n", argv[1] ); 
+		return -1; 
+	} 
+
+	if( ioctl( fd, BLKFLSBUF) == -1)
+		printf("flush catche failed\n");
+		
+	close(fd); 
+	return 0; 
+}
+
+
+------------------------------
+** About Bad Blocks of NAND **
+------------------------------
+
+NAND is a special flash type which there are new bad blocks generated during
+the whole period of using it. So the NAND driver should know how to detect
+a bad block and how to mark a new block bad.
+
+Some types of NAND flash mark the bad block in the spare area of the first
+page but others in the last page. So we define a kernel configuration called
+CONFIG_MTD_BADBLOCK_FLAG_PAGE and use it to decide the bad block.
+
+CONFIG_MTD_BADBLOCK_FLAG_PAGE: page in a block to store the badblock mark
+
+Following functions should be cared:
+
+nand_base.c:
+
+ - nand_block_bad()
+ - nand_default_block_markbad()
+
+nand_bbt.c:
+
+ - create_bbt()
+
+---------------------------------------
+** Multiple plane operation for NAND **
+---------------------------------------
+
+NAND multiple plane is a feature enabling support of simultaneous write/erase 
+operations for NAND devices with multiplane architecture. This feature 
+significantly increases write performance. It could give performance benefits
+if NAND device supports ultiple plane architecture only. If NAND device does 
+not support multiple plane and CONFIG_MTD_NAND_MULTI_PLANE was set to yes when 
+compiling kernel, code will parse device capabilities and NAND device will work 
+in single plane mode. For safe, you'd better set CONFIG_MTD_NAND_MULTI_PLANE to 
+no if NAND device does not support multiple plane.
+
+If the NAND device support multiple plane, you could determine which partitions
+use multiple plane and which use single plane by setting the value of 
+partition_info[] in driver/mtd/nand/jz47xx_nand.c, if the value of use_planes 
+for a partition is 0, then the partition uses single plane, or else it uses 
+multiple plane. e.g.
+
+static struct mtd_partition partition_info[] = {
+	{name:"NAND BOOT partition",
+	 offset:0 * 0x100000,
+	 size:4 * 0x100000,
+	 use_planes: 0},
+	{name:"NAND KERNEL partition",
+	 offset:4 * 0x100000,
+	 size:4 * 0x100000,
+	 use_planes: 0},
+	{name:"NAND ROOTFS partition",
+	 offset:8 * 0x100000,
+	 size:120 * 0x100000,
+	 use_planes: 1},
+	{name:"NAND DATA1 partition",
+	 offset:128 * 0x100000,
+	 size:128 * 0x100000,
+	 use_planes: 1},
+	{name:"NAND DATA2 partition",
+	 offset:256 * 0x100000,
+	 size:256 * 0x100000,
+	 use_planes: 1},
+	{name:"NAND VFAT partition",
+	 offset:512 * 0x100000,
+	 size:512 * 0x100000,
+	 use_planes: 1},
+};
+
+---------------------------------------
+** Multiple chip selecting for NAND **
+---------------------------------------
+
+CS1_N pin on Jz4740 or Jz4750 will be used for NAND defaultly; besides CS2_N,
+CS3_N, and CS4_N pins could be used for NAND, too. You can configure the kernel
+and select the configuration at:
+
+ [Memory Technology Devices (MTD)] --> [NAND Device Support]
+
+  --> [ECC Type] --> [Use NAND on CS2_N of JZSOC]
+                     [Use NAND on CS3_N of JZSOC]
+                     [Use NAND on CS4_N of JZSOC]
+
+
+----------------------------
+** SLC and MLC NAND Flash **
+----------------------------
+
+Single-Level Cell (SLC) and Multi-Level Cell (MLC) are both NAND-based 
+non-volatile memory technologies. MLC NAND Flash allows each memory cell 
+to store two bits of information, compared to the one bit-per-cell SLC 
+NAND Flash allows. As a result, 90 nanometer (nm) MLC NAND offers a 
+larger capacity (typically twice the density of SLC) and at a cost point
+appropriate for consumer products.
+
+Though SLC NAND offers a lower density, it also provides an enhanced 
+level of performance in the form of faster write speeds.  Because SLC 
+stores only one bit per cell, the likelihood for error is reduced.
+At 90 nanometer process, it is recommended to implement a 1 to 2-bit 
+ECC for SLC, whereas 4-bit ECC is recommended on the MLC architecture.
+
+The linux kernel from ingenic provides MLC NAND support through Hardware
+ECC algorithm. Jz4740 supports Reed-Solomon (RS) ECC algorithm, which can 
+detect and correct 4-bit errors per 512 bytes at least. Jz4750 supports
+4-bit and 8-bit BCH ECC algorithm, 4-bit BCH ECC can detect and correct 
+4 bits for up to 1010 bytes and 8-bit BCH ECC can detect and correct 
+8 bits errors for up to 1016 bytes.
+
+To include MLC NAND support, you are required to configure the kernel
+and select the configuration CONFIG_MTD_HW_RS_ECC for Jz4740, and 
+CONFIG_MTD_HW_BCH_ECC for Jz4750, which can be found at:
+
+ [Memory Technology Devices (MTD)] --> [NAND Device Support]
+
+  --> [ECC Type] --> [Select hardware RS ECC]
+                     [Select hardware BCH ECC]
+
+
+---------------
+** Initramfs **
+---------------
+
+Please read Documentation/filesystems/ramfs-rootfs-initramfs.txt for 
+more information about how to use initramfs.
+
+Following are some steps to help you to create root fs by using initramfs:
+
+# cd /rootfs/
+# find . | cpio -c -o | gzip -9 > ../rootfs.cpio.gz
+
+Reconfigure the Linux kernel and select next configurations:
+
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_INITRAMFS_SOURCE="/rootfs.cpio.gz"
+CONFIG_INITRAMFS_ROOT_UID=0
+CONFIG_INITRAMFS_ROOT_GID=0
+
+Rebuild the kernel and boot the kernel with next command lines:
+
+"root=/dev/ram0 rw rdinit=/sbin/init"
+
+
+----------------------------
+** Audio full duplex mode **
+----------------------------
+
+OSS audio driver supports full duplex mode, that is to say, you can 
+record while replaying.
+
+The user application want to do some jobs to enable the full duplex mode
+of the OSS driver. The following are two examples:
+
+
+One is:
+
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sys/soundcard.h>
+#include <sys/time.h>
+#include <signal.h>
+#include <sys/wait.h>
+
+#define AUDIO_FILE "/dev/dsp"
+#define FREQS 48000
+#define CHANNELS 2
+#define TEST_TIME 10
+#define SAMPLES 16
+#define BUF_SIZE 8192
+#define MAX_LEN (FREQS * CHANNELS * TEST_TIME * SAMPLES / 8)
+
+int main(int argc, char *argv[])
+{
+	FILE *fp;
+	pid_t pid;
+	int audio_fd, i;
+	char *play_name;
+	char *rec_name;
+
+	int play_count, play_cnt, played;
+	int rec_count, rec_cnt, recorded;
+	
+	u_char play_arr[MAX_LEN];
+	u_char rec_arr[MAX_LEN];
+	int err = 0;
+	
+	play_name = argv[1];
+	rec_name = argv[2];
+
+	if ((audio_fd = open("/dev/dsp", O_RDWR)) < 0) {
+		printf(" Can't open sound device!\n");
+		exit(-1);
+	}
+	
+	i = BUF_SIZE;
+	ioctl(audio_fd, SNDCTL_DSP_SETFRAGMENT, &i);
+	ioctl(audio_fd, SNDCTL_DSP_SYNC, NULL);
+	
+	i = CHANNELS;
+	ioctl(audio_fd, SNDCTL_DSP_STEREO, (u_char *) &i);
+	
+	i = SAMPLES;
+	ioctl(audio_fd, SNDCTL_DSP_SAMPLESIZE, (u_char *) &i);	
+	
+	i = FREQS;
+	ioctl(audio_fd, SNDCTL_DSP_SPEED, (u_char *) &i);
+
+	fp=fopen(play_name, "r");
+	fread(play_arr, 1, MAX_LEN, fp);
+	fclose(fp);
+
+	
+	play_count = MAX_LEN;
+	played = 0;
+
+	rec_count = MAX_LEN;
+	recorded = 0;
+
+	switch(pid = fork()) {
+	case -1:
+		printf("error\n");
+		break;
+	case 0:
+		printf(" playing\n");
+		while (play_count) {
+			play_cnt = play_count;
+			if (play_cnt > BUF_SIZE)
+				play_cnt = BUF_SIZE;
+			
+			write (audio_fd, (char *)play_arr+played, play_cnt);
+			played += play_cnt;
+			play_count -= play_cnt;
+		}/* while (count) */
+		exit(0);
+		break;
+	default:
+		printf(" recording\n");
+		while (rec_count) {
+			rec_cnt = rec_count;
+			if (rec_cnt > BUF_SIZE)
+				rec_cnt = BUF_SIZE;
+	
+			read (audio_fd, (char *)rec_arr+recorded, rec_cnt);
+			recorded += rec_cnt;
+			rec_count -= rec_cnt;
+		}/* while (count) */		       
+		break;
+	}
+	close(audio_fd);
+	
+	printf("write data to file, waiting for a while\n");
+	fp=fopen(rec_name, "w");
+	fwrite(rec_arr, 1, MAX_LEN, fp);
+	fclose(fp);
+
+	return err;
+}
+
+The other is :
+
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sys/soundcard.h>
+#include <sys/time.h>
+#include <signal.h>
+#include <sys/wait.h>
+
+#define AUDIO_FILE "/dev/dsp"
+#define FREQS_PLAY 22050
+#define FREQS_REC  8000
+#define FREQS      22050
+#define CHANNELS 1
+#define TEST_TIME 10
+#define SAMPLES 16
+#define BUF_SIZE 8192
+#define MAX_LEN (FREQS * CHANNELS * TEST_TIME * SAMPLES / 8)
+
+int main(int argc, char *argv[])
+{
+	FILE *fp;
+	pid_t pid;
+	int audio_fd, i;
+	char *play_name;
+	char *rec_name1, *rec_name2, *rec_name3;
+	int mixerfd, vol, savevol;
+	
+	int count;
+	int play_count, play_cnt, played;
+	int rec_count, rec_cnt, recorded;
+	
+	u_char play_arr[MAX_LEN];
+	u_char rec_arr[MAX_LEN];
+	int err = 0;
+	
+	play_name = argv[1];
+	rec_name1 = argv[2];
+	rec_name2 = argv[3];
+	rec_name3 = argv[4];
+
+	if ((mixerfd = open("/dev/mixer", O_RDWR)) < 0) {
+	    perror("/dev/mixer");
+	    exit(1);
+	}
+
+	if ((audio_fd = open("/dev/dsp", O_RDWR)) < 0) {
+		printf(" Can't open sound device!\n");
+		exit(-1);
+	}
+	
+	i = BUF_SIZE;
+	ioctl(audio_fd, SNDCTL_DSP_SETFRAGMENT, &i);// midify buffer lenth
+	ioctl(audio_fd, SNDCTL_DSP_SYNC, NULL);
+	
+	i = CHANNELS;
+	ioctl(audio_fd, SNDCTL_DSP_CHANNELS, (u_char *) &i);
+	
+	i = SAMPLES;
+	ioctl(audio_fd, SNDCTL_DSP_SAMPLESIZE, (u_char *) &i);
+
+	fp=fopen(play_name, "r");
+	fread(play_arr, 1, MAX_LEN, fp);
+	fclose(fp);
+
+	if (ioctl(mixerfd, SOUND_MIXER_READ_MIC, &savevol) == -1) {
+	    perror("SOUND_MIXER_READ_DEVMASK mic");
+	    exit(-1);
+	}
+
+	savevol = savevol & 0xff;
+
+	for (count = 1; count <= 3; count++) {
+		
+		play_count = MAX_LEN;
+		played = 0;
+		
+		rec_count = MAX_LEN;
+		recorded = 0;
+		
+		
+		i = FREQS_PLAY;
+		ioctl(audio_fd, SNDCTL_DSP_SPEED, (u_char *) &i);
+      
+		printf(" playing %d\n", i);
+	        while (play_count) {
+			play_cnt = play_count;
+			if (play_cnt > BUF_SIZE)
+				play_cnt = BUF_SIZE;
+			
+			write (audio_fd, (char *)play_arr+played, play_cnt);
+			played += play_cnt;
+			play_count -= play_cnt;
+		}/* while (count) */
+		
+		/* wait for sync */
+		ioctl(audio_fd, SNDCTL_DSP_SYNC, NULL);
+
+		/* set mic gain 0 */
+		vol = 0;
+		if (ioctl(mixerfd, SOUND_MIXER_WRITE_MIC, &vol) == -1) {
+			perror("SOUND_MIXER_WRITE_DEVMASK mic");
+			exit(-1);
+		}
+		i = FREQS_REC;
+		ioctl(audio_fd, SNDCTL_DSP_SPEED, (u_char *) &i);
+		/* set mic gain orgin */
+		vol = savevol;
+		if (ioctl(mixerfd, SOUND_MIXER_WRITE_MIC, &vol) == -1) {
+			perror("SOUND_MIXER_READ_DEVMASK mic");
+			exit(-1);
+		}
+
+		printf(" recording %d\n", i);
+		while (rec_count) {
+			rec_cnt = rec_count;
+			if (rec_cnt > BUF_SIZE)
+				rec_cnt = BUF_SIZE;
+			
+			read (audio_fd, (char *)rec_arr+recorded, rec_cnt);
+			recorded += rec_cnt;
+			rec_count -= rec_cnt;
+		}/* while (count) */		       
+
+		switch (count) {
+		case 1:
+			printf(" write to %s\n",rec_name1);
+			fp=fopen(rec_name1, "w");
+			fwrite(rec_arr, 1, MAX_LEN, fp);
+			fclose(fp);
+			break;
+		case 2:
+			printf(" write to %s\n",rec_name2);
+			fp=fopen(rec_name2, "w");
+			fwrite(rec_arr, 1, MAX_LEN, fp);
+			fclose(fp);
+			break;
+		case 3:
+			printf(" write to %s\n",rec_name3);
+			fp=fopen(rec_name3, "w");
+			fwrite(rec_arr, 1, MAX_LEN, fp);
+			fclose(fp);
+			break;	
+		}
+		sleep(1);
+	}
+	
+	close(audio_fd);
+      
+	return err;
+}
+
+-------------
+** Support **
+-------------
+
+Welcome to Ingenic website: <http://www.ingenic.cn>
+
+More details, please refer to linux26_developer_guide.pdf.

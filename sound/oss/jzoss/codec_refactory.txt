@@ -1,0 +1,173 @@
+﻿新OSS驱动架构
+--------------
+	_______________________________
+	|		  Application          |
+	--------------------------------
+	____________    _______________
+	|    i2s    |   |    mixer     |
+	-------------   ----------------
+	_______________________________
+	|           codec              |
+	--------------------------------
+	
+
+
+codec层
+========
+需要支持不同的codec，包括外部codec, 对i2s层提供标准的接口，对mixer层提供标准及个性化的接口。
+
+还需要考虑到耳机的插入检测如何实现，
+
+
+
+i2s层
+======
+遵守OSS规范进行实现，对Application提供标准的OSS接口，对下操作codec
+
+i2s层不提供私有的API。
+
+对下操作codec要求codec提供基本的接口：
+* 模式设置(录音，放音，同时录放)
+* 设置录音/放音位宽
+* 设置录音/放音采样率
+* 设置录音/放音channel数
+* trigger接口：当i2s一切就绪时，会trigger codec，这相当于一个启动接口
+
+enum CODEC_MODE {
+	CODEC_MODE_REPLAY,
+	CODEC_MODE_RECORD,
+	CODEC_MODE_REPLAY_RECORD
+};
+
+struct codec_ops {
+	// 仅用于设置三个参数，不作他用
+	int (*set_hw_params)(int mode, int width, int rate, int channels);
+	
+	int (*set_replay_volume)(int vol);
+	int (*set_record_volume)(int vol);
+	int (*set_kcontrol)(struct codec_kcontrol *ctrl);
+	int (
+	
+	// 启动相关功能(如果没有在模块加载时初始化codec，需要在此时初始化)。
+	int (*triggle)(int mode, int event);
+};
+
+#define CODEC_EVENT_INIT
+#define CODEC_EVENT_START
+#define CODEC_EVENT_FINI
+#define CODEC_EVENT_SUSPEND
+#define CODEC_EVENT_RESUME
+
+
+int register_codec(struct codec_ops*);
+int unregister_codec(struct codec_ops*);
+
+jz_audio_write() {
+	copy_from_user();
+	res = jz_audio_dma_push(data, len);
+	
+	return res;
+}
+
+jz_audio_read(u8 *buffer) {
+	
+	for (xxxxx) {
+		jz_audio_dma_pull(data, len);
+	}
+	
+	return len;
+}
+
+i2s和dma
+========
+#define DEFAULT_NR_FRAG	5
+#define DEFAULT_FRAG_SIZE	PAGE_SIZE
+
+int jz_audio_dma_init();
+int jz_audio_dma_deinit();
+
+jz_audio_dma_resize_buffer(int nr_frag, int frag_size);
+
+int jz_audio_dma_push(u8 *data /* user */, int len); // jz_audio_write, copy_from_user
+int jz_audio_dma_pull(u8 *data /* user */, int len); // jz_audio_read, copy_to_user
+
+jz_audio_dma_stop(); // wait current transfer(node) to stop, then stop dma(aka: do not restart dma)
+jz_audio_dma_start(); // continue transfer
+jz_audio_dma_flush(); // remove all used nodes(all nodes will be free node)
+
+jz_audio_dma_get_ospace();
+jz_audio_dma_get_ispace();
+
+
+mixer层
+=======
+想办法做到对具体codec透明是关键。
+
+提供以下功能:
+1. 对gain的设置
+	* 标准OSS接口的实现
+	* 私有接口，提供对codec内gain的详细设置
+	
+2. 通路的选择
+	通路的选择要考虑到当前的模式
+	* 在放音模式时, 只能选择声音的出口，hp, lineout, or BTL
+	* 在录音模式时，只能选择声音的入口，mic1, mic2, linein, 或是他们的随意组合
+	* 在同时录放时，有bypass和非bypass之分，不论是哪种，都涉及到入口及出口的选择
+	
+	在以上三种模式下，codec都有默认的通路设置，且可以针对板级的不同灵活配置
+	
+	用户必须在正式放音前设置通路。
+	
+	FIXME: 如果用户想bypass，但上层又不想录音(例如: FM收音)，怎么办？
+	
+	还需考虑耳机的插入检测，如果通路的选择是用户选择，则禁用耳机的插入检测。
+	
+enum CODEC_CTRL_TYPE {
+	CODEC_CTRL_GAIN,
+	CODEC_CTRL_ROUTE
+};
+
+#define CODEC_CTRL_NAME_LEN		64
+#define CODEC_ROUTE_NAME_LEN	64
+	
+struct codec_kcontrol {
+	int type;
+	char name[CODEC_CTRL_NAME_LEN];
+	union {
+		int gain;
+		char route[CODEC_ROUTE_NAME_LEN];
+	} v;
+};
+	
+与用户层的接口
+==============
+1. 标准OSS接口
+2. 私有接口
+	* controls查询，包括:
+		+ gain设置
+		+ 通路选择
+		
+		返回struct codec_kcontrol数组
+		
+		ioctl: 
+			cmd: GET_CODEC_KCONTROLS_NUM
+			arg: int*
+			arg direction: OUT
+			return: number of kcontrols
+			
+			cmd: GET_CODEC_KCONTROLS
+			arg: struct codec_kcontrol*
+			arg direction: OUT
+			return: 0
+		
+	* controls设置
+		+ gain设置的value类型是int
+		+ 通路选择的value类型是字符串("mic1", "mic2", "hp+mic1")
+		
+		ioctl:
+			cmd: SET_CODEC_KCONTROLS
+			arg: struct codec_kcontrol*
+			arg direction: IN/OUT
+			return: 0, the user must re-check *codec_kcontrol* to see whether success or fail
+		
+		用户层需正确填充struct codec_kcontrol实例。

@@ -1,0 +1,28 @@
+#
+# VIVANTE_GPU support
+#
+
+menuconfig VIVANTE_GPU
+	tristate "Vivante GPU"
+	depends on JZSOC
+	help
+	  VIVANTE_GPU
+
+config VIVANTE_GPU_GC200
+	tristate "Vivante GPU GC200"
+	depends on VIVANTE_GPU && (SOC_JZ4760 || SOC_JZ4760B)
+	help
+	  VIVANTE_GPU_GC200
+
+config VIVANTE_GPU_GC860
+	tristate "Vivante GPU GC860"
+	depends on VIVANTE_GPU && SOC_JZ4770
+	help
+	  VIVANTE_GPU_GC860
+
+config LINUX_VIVANTE_GPU_GC860
+	tristate "Linux Vivante GPU GC860"
+	depends on VIVANTE_GPU && SOC_JZ4770
+	default n
+	help
+	  LINUX_VIVANTE_GPU_GC860

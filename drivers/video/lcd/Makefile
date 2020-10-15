@@ -1,0 +1,26 @@
+# LCD drivers
+
+obj-$(CONFIG_JZ4760_LCD_TM370_LN430_9)					+= panel-tm370_ln430_9.o
+obj-$(CONFIG_JZ4760_LCD_RG_V10)							+= panel-a030jtn01.o
+obj-$(CONFIG_JZ4760_LCD_RG_V21)							+= panel-ej030na-09b.o
+obj-$(CONFIG_JZ4760_LCD_RG_V30)							+= panel-lkwy030a01.o
+obj-$(CONFIG_JZ4760_LCD_RG_IPS)							+= panel-rgp-ips.o
+obj-$(CONFIG_JZ4760_SLCD_SNK)							+= panel-rgp-slcd.o
+obj-$(CONFIG_LCD_NT39016)								+= panel-nt39016.c
+obj-$(CONFIG_JZ4760_LCD_SAMSUNG_LTP400WQF01)			+=
+obj-$(CONFIG_JZ4760_LCD_SAMSUNG_LTP400WQF02)			+= panel-ltp400wqf02.c
+obj-$(CONFIG_JZ4760_LCD_AUO_A043FL01V2)					+= panel-a043fl01v2.c
+obj-$(CONFIG_JZ4760_LCD_FOXCONN_PT035TN01)				+= panel-pt035tn01.c
+obj-$(CONFIG_JZ4760_LCD_INNOLUX_PT035TN01_SERIAL)		+=
+obj-$(CONFIG_JZ4760_LCD_TOPPOLY_TD025THEA7_RGB_DELTA)	+= panel-td025thea7.c
+obj-$(CONFIG_JZ4760_LCD_TOPPOLY_TD043MGEB1)				+= panel-td043mgeb1.c
+obj-$(CONFIG_UMIDO_LCD_4_3)								+=
+obj-$(CONFIG_JZ4760_LCD_TRULY_TFTG320240DTSW_18BIT)		+= panel-tftg320240dtsw.o
+obj-$(CONFIG_JZ4760_LCD_TRULY_TFTG320240DTSW_16BIT)		+= panel-tftg320240dtsw.o
+obj-$(CONFIG_JZ4760_LCD_TRULY_TFT_GG1P0319LTSW_W)		+= panel-gg1p0319ltsw_w.c
+obj-$(CONFIG_JZ4760_SLCD_KGM701A3_TFT_SPFD5420A)		+= panel-spfd5420a.c
+obj-$(CONFIG_JZ4760_LCD_HYNIX_HT12X14)					+=
+obj-$(CONFIG_JZ4760_LCD_KD101N2)						+=
+obj-$(CONFIG_JZ4760_LCD_KD101N4)						+=
+obj-$(CONFIG_JZ4760_VGA_DISPLAY)						+= panel-vga.c
+obj-$(CONFIG_JZ4760_HDMI_DISPLAY)						+= panel-hdmi.c

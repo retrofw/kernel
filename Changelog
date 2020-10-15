@@ -1,0 +1,465 @@
+2011.03.11 <hpyang@ingenic.cn>
+*Note:Implement the NEW mechanism of ECC and SUPPORT 8k nand.
+Update file						Version after commit
+
+For Nand & Yaffs2
+
+linux-2.6.31.3/drivers/mtd/nand/nand_base.c
+
+linux-2.6.31.3/include/linux/mtd/mtd.h
+
+linux-2.6.31.3/include/linux/mtd/nand.h
+				
+linux-2.6.31.3/drivers/mtd/nand/nand_ids.c
+
+linux-2.6.31.3/drivers/mtd/nand/Makefile
+
+linux-2.6.31.3/drivers/mtd/nand/jz4760b_nand.c	(Add)
+	
+linux-2.6.31.3/fs/yaffs2/yaffs_fs.c
+
+linux-2.6.31.3/fs/yaffs2/yaffs_mtdif.c
+
+linux-2.6.31.3/fs/yaffs2/yaffs_mtdif2.c
+
+linux-2.6.31.3/drivers/mtd/mtdpart.c
+
+
+For VFAT
+
+linux-2.6.31.3/drivers/mtd/mtdblock-jz.c
+
+
+For Yaffs2 tool
+
+linux-2.6.31.3/fs/yaffs2/utils/Makefile
+
+linux-2.6.31.3/fs/yaffs2/utils/mkyaffs2image4760x.c (Add)
+*Note:Implement the NEW mechanism of ECC and SUPPORT 8k nand.
+
+2009.04.22
+* Which mode a partition works with, cpu mode or dma mode, could be determined by the 
+  value of cpu_mode in partition_info[] in drivers/mtd/nand/jz47xx_nand.c
+  Update Files:	
+       include/linux/mtd/partitions.h
+       include/mtd/mtd-abi.h
+       include/asm-mips/mach-jz4750/ops.h
+       drivers/mtd/nand/jz4750_nand.c
+       drivers/mtd/nand/nand_base.c
+       drivers/mtd/mtdpart.c
+       drivers/mtd/mtdcore.c
+	
+* Vmalloc instead of kmalloc a block cache for mtdblock-jz when the partition works
+  in cpu mode.
+  Update Files:
+       drivers/mtd/mtdblock-jz.c
+  <lhhuang@ingenic.cn>
+
+2009.04.17
+* Allocate a block cache for every partitions which works over mtdblock-jz early 
+  in nand_base.c if CONFIG_ALLOCATE_MTDBLOCK_JZ_ERALY defined.
+  Update Files:
+	drivers/mtd/nand/nand_base.c
+	drivers/mtd/mtdblock-jz.c
+	drivers/mtd/nand/jz4740_nand.c
+	drivers/mtd/nand/jz4750_nand.c	
+
+* The eccpos in nand_oob_64 was changed to 24 when using 4-bit BCH to conform with 
+  the eccpos of nand_oob_128 when using 8-bit BCH.
+  Update Files:	
+	drivers/mtd/nand/nand_base.c
+
+* set CONFIG_PREEMPT_NONE=y to make the speed of UDC using NAND highly. And set 
+  CONFIG_MTD_HW_BCH_8BIT=y for 4KB pagesize NAND.
+  Update Files:	
+	arch/mips/configs/apus_defconfig 
+  <lhhuang@ingenic.cn>
+	
+
+2009.04.11
+* Whether a partition works over mtdblock-jz or not could be determined by the 
+  value of mtdblock_jz_invalid in partition_info[] in drivers/mtd/nand/jz47xx_nand.c
+	
+  Update Files:
+	drivers/mtd/nand/jz4740_nand.c
+	drivers/mtd/nand/jz4750_nand.c
+	include/linux/mtd/partitions.h
+	include/mtd/mtd-abi.h
+	drivers/mtd/mtdpart.c
+	drivers/mtd/mtdblock-jz.c
+   <lhhuang@ingenic.cn>
+	
+2009.03.30
+* Set ECCPOS of 4K page nand to 28. (For 4750, only set 4bit BCH ECCPOS to 28)
+  Modify nand partitions of PAVO & APUS.
+	
+  Update Files:
+	drivers/mtd/nand/nand_base.c
+	drivers/mtd/nand/jz4740_nand.c
+	drivers/mtd/nand/jz4750_nand.c
+  <zyliu@ingenic.cn>
+	
+2009.02.17
+* Modify oss driver to support jz4750 i2s codec.
+  Update Files:
+	sound/oss/Kconfig
+	sound/oss/Makefile
+	sound/oss/jz_i2s.c
+  Add Files:
+	sound/oss/jzdlv.h
+	sound/oss/jzdlv.c
+  <cjfeng@ingenic.cn>
+2008.12.08
+* Power management is supported for jz4750.
+  Update Files:
+	arch/mips/jz4750/pm.c
+	drivers/char/jzchar/poweroff.c	
+
+2008.12.04
+* Whether NAND multiple planes operation for one partition is used or not could be 
+  determined by the value of use_planes in partition_info[] in drivers/mtd/nand/jz47xx_nand.c
+  Updated files:
+      include/linux/mtd/partitions.h
+      drivers/mtd/nand/nand_base.c
+      drivers/mtd/nand/jz4740_nand.c
+      drivers/mtd/mtdpart.c
+* Supported 4KB page size nand with 2 planes
+  Update Files:
+      include/linux/mtd/nand.h
+      drivers/mtd/nand/nand_base.c
+      fs/yaffs2/utils/mkyaffs2image.c
+      drivers/mtd/mtd-utils/nandwrite_mlc.c
+  <lhhuang@ingenic.cn>
+
+2008.11.07
+* The ubi was modified to support MTD of 64bit.
+  Updated file:
+      drivers/mtd/ubi/io.c
+* The ubi and ubifs were modified by changing vmalloc and vfree to kmalloc and kfree 
+  to provide DMA buffer for NAND driver. But the NAND driver will use DMA buffer in
+  itself instead of in ubi and ubifs when CONFIG_MTD_NAND_DMABUF is defined.
+  Updated files:
+      drivers/mtd/ubi/build.c
+      drivers/mtd/ubi/cdev.c
+      drivers/mtd/ubi/gluebi.c
+      drivers/mtd/ubi/misc.c
+      drivers/mtd/ubi/scan.c
+      drivers/mtd/ubi/ubiblk.c
+      drivers/mtd/ubi/upd.c
+      drivers/mtd/ubi/vtbl.c
+      fs/ubifs/build.c
+      fs/ubifs/log.c
+      fs/ubifs/lpt.c
+      fs/ubifs/lpt_commit.c
+      fs/ubifs/orphan.c
+      fs/ubifs/recovery.c
+      fs/ubifs/replay.c
+      fs/ubifs/super.c
+  <lhhuang@ingenic.cn>
+
+2008.10.31
+* Converted MTD from 32bit to 64bit to support the NAND larger than 4GB, and yaffs2 was 
+  modified accordingly. <lhhuang@ingenic.cn>
+  Updated file:
+      include/mtd/mtd-abi.h
+      include/linux/mtd/mtd.h
+      include/linux/mtd/partitions.h
+      include/linux/mtd/nand.h
+      drivers/mtd/mtdcore.c
+      drivers/mtd/mtdchar.c
+      drivers/mtd/mtdpart.c
+      drivers/mtd/mtdblock-jz.c
+      drivers/mtd/nand/nand_base.c
+      drivers/mtd/nand/nand_bbt.c
+      drivers/mtd/mtd-utils/include/mtd/mtd-abi.h
+      drivers/mtd/mtd-utils/flash_eraseall.c
+      drivers/mtd/mtd-utils/nandwrite_mlc.c
+      drivers/mtd/mtd-utils/nandwrite.c
+      fs/yaffs2/yaffs_fs.c
+      fs/yaffs2/yaffs_mtdif.c
+      fs/yaffs2/yaffs_mtdif2.c
+
+2008.10.29
+* Modified yaffs2 utils mkyaffs2image to support writting 4KB pagesize NAND. NAND layout 
+  is (0 - raw(512B pagesize), 1 - nand_oob_64(2KB pagesize), 2 - nand_oob_128(4KB pagesize)). 
+  <lhhuang@ingenic.cn>
+  Updated file:
+      fs/yaffs2/utils/mkyaffs2image.c
+
+2008.10.27
+* Supported multiply chip selecting for NAND flash. <lhhuang@ingenic.cn>
+  Updated files:
+      include/linux/mtd/nand.h
+      drivers/mtd/nand/nand_base.c
+      drivers/mtd/nand/jz4750_nand.c
+      drivers/mtd/nand/jz4740_nand.c
+
+2008.10.23
+* Modified yaffs2 utils mkyaffs2image to enable writing soft reed-solomn ECC for 
+  yaffs2 file system information in oob area of MLC nand, getting CONFIG_YAFFS_ECC_RS
+  from .config, so when CONFIG_YAFFS_ECC_RS is changed, mkyaffs2image should be built
+  again. <lhhuang@ingenic.cn>
+  Updated files:
+      fs/yaffs2/yaffs_ecc.c
+      fs/yaffs2/utils/Makefile
+  Added files:
+      fs/yaffs2/utils/ssfdc_rs_ecc.c  
+      fs/yaffs2/utils/ssfdc_rs_ecc.h
+
+2008.09.26
+
+* Fixed a fatal bug for mplayer, which may cause some files cannot be played and
+  the system is crashed. <jlwei@ingenic.cn>
+  Updated file: arch/mips/jz4740/proc.c
+
+2008.08.30
+* For jz4750, DMA clock for each channel should be enabled before using the channel.
+  So REG_DMAC_DMACKE and  __dmac_channel_enable_clk(n) were added.
+  Updated files:
+      include/asm-mips/mach-jz4750/regs.h
+      include/asm-mips/mach-jz4750/ops.h
+  Regen, <lhhuang@ingenic.cn>
+
+2008.08.19
+* Modify jzfb_mmap() for cacheable framebuffer access. <jlwei@ingenic.cn>
+  Updated files: 
+      drivers/video/jzlcd.c
+      drivers/video/jz4740_slcd.c
+      drivers/video/jz4750_lcd.c
+
+2008.08.15
+* Modify ipu interface to toggle PID of MPlayer in TLB.
+* Modify OSS ioctl function to play movie with mono channel better. 
+	Update Files:
+		arch/mips/jz4740/proc.c
+		sound/oss/jz_i2s.c
+	Richard Feng, <cjfeng@ingenic.cn>
+
+2008.08.04
+* Check whether the free block is erased before erasing it, 'unsigned int' instead of
+  'unsigned short' was used to store block number, and heap sort for lifetime after 
+  erasing a block was replaced by another faster method.
+	Update File:
+		drivers/mtd/mtdblock-jz.uu
+
+* Cache read was used in nand_read_page_hwecc_rs() for Jz4740.
+	Update File:
+		drivers/mtd/nand/nand_base.c
+
+* Faster timing in REG_EMC_SMCR1 whose value is 0x09221200 was used.
+	Update File:
+		drivers/mtd/nand/jz4740_nand.c
+
+	Regen, <lhhuang@ingenic.cn>
+
+2008.07.21
+* Supported 4KB page size nand
+	Update File:
+		drivers/mtd/nand/nand_base.c
+		include/linux/mtd/nand.h
+		include/mtd/mtd-abi.h
+		drivers/mtd/mtd-utils/include/mtd/mtd-abi.h
+	Regen, <lhhuang@ingenic.cn>
+
+2008.07.18
+* Soft reed solomon ECC was supported for yaffs2 information which is 16 bytes in nand 
+  oob, and it should be used for MLC nand.
+	Update File:
+		fs/yaffs2/yaffs_ecc.c
+		fs/yaffs2/yaffs_ecc.h
+		fs/yaffs2/yaffs_fs.c
+		fs/yaffs2/yaffs_packedtags2.c
+	Regen, <lhhuang@ingenic.cn>
+
+2008.07.10
+* Added support to generate any frequency baud rate of uart for both Jz4740 and Jz4750.
+	Update File:
+		drivers/serial/8250.c
+	Regen, <lhhuang@ingenic.cn>
+
+2008.07.03
+* Modified Jz4750's INTC, CIM, TSSI, macros.
+	Update Files:
+		include/asm-mips/mach-jz4750/regs.h
+		include/asm-mips/mach-jz4750/ops.h
+
+2008.06.24
+* Combined Jz4750 SLCD Controller support into drivers/video/jz4750_lcd.c.
+* drivers/video/jz4750_lcd.c, now support: LCD Controller, Slcd Controller, TVE. 
+* And add smart lcd panel TRULY_TFT_GG1P0319LTSW_W support.
+	Update Files:
+		drivers/video/Kconfig
+		drivers/video/jz4750_lcd.h
+		drivers/video/jz4750_lcd.c
+	Wolfgang Wang, <lgwang@ingenic.cn>
+
+2008.06.20
+* Add Jz4750 LCDC and TVE driver. 	<lgwang@ingenic.cn>
+	Update Files:
+		arch/asm-mips/mach-jz4750/regs.h
+		arch/asm-mips/mach-jz4750/ops.h
+		drivers/video/Kconfig
+		drivers/video/Makefile
+	Add Files:
+		drivers/video/jz4750_lcd.h
+		drivers/video/jz4750_lcd.c
+		drivers/video/jz4750_tve.h
+		drivers/video/jz4750_tve.c
+
+2008.06.12
+* Modified CONFIG_FB_JZXXX macros, rename drivers/video/jzslcd.x to drivers/video/jz4740_slcd.x
+	Update Files:
+		drivers/video/Kconfig
+		drivers/video/Makefile
+		arch/mips/configs/dipper_defconfig
+		arch/mips/configs/leo_defconfig
+		arch/mips/configs/lyra_defconfig
+		arch/mips/configs/pavo_defconfig
+		arch/mips/configs/virgo_defconfig
+	<lgwang@ingenic.cn>
+
+2008.06.10
+* Add jz_clocksource, upgrade the system time's accuracy from 10ms to about 1(or 2) us.
+  but the system timer remained 10ms.
+	Files modified:
+		arch/mips/jz4730/time.c
+		arch/mips/jz4740/time.c
+		arch/mips/jz4750/time.c
+	<lgwang@ingenic.cn>
+
+2008.05.31
+
+* Updated UBIFS. <yrtan@ingenic.cn>
+
+2008.05.30
+
+* Added JZ4720 virgo board support. <zyliu@ingenic.cn>
+
+2008.05.29
+
+* Added definition of CONFIG_SOC_JZ4725 and CONFIG_SOC_JZ4720. <zyliu@ingenic.cn>
+* Added selection of 4-bit/1-bit data bus for MMC/SD card driver. <zyliu@ingenic.cn>
+* Added dipper_defconfig for JZ4725 DIPPER board. <zyliu@ingenic.cn>
+
+2008.05.29:
+
+* Modified sound/oss/jz_i2s.c to increase the sound buffer.
+* Modified pavo_defconfig to select the oss sound driver by default.
+* Fixed jzlcd.h for jz4730 pmp.
+* Modified jzcs8900a.c to not test the chip ID.
+
+2008.05.22:
+
+* jzcs8900a.c: fixed the bug of "No network devices available". <jlwei@ingenic.cn>
+
+2008.05.13:
+
+* Rewrote all of the UBI and UBIFS codes. <yrtan@ingenic.cn>
+
+2008.05.07:
+* Add GPIO group E group F irq, DMAC1 irq. Add SSI1 macros.
+	<lgwang@ingenic.cn>
+
+2008.05.06:
+
+* Modified MMC/SD driver jz_mmc.c to support PM callback. <cwjia@ingenic.cn>
+
+2008.05.04:
+
+* Fixed a bug of mtdblock-jz.uu of using the badblock_table. <yrtan@ingenic.cn>
+
+2008.04.26:
+
+* Patch jz4740_nand.c to optimize the RS correction algorithm. <zengzhaoxiu>
+
+2008.04.24
+* Jzlcd driver add Framebuffer Rotate support.
+  Update files:
+	drivers/video/Kconfig
+	drivers/video/jzlcd.h
+	drivers/video/jzlcd.c
+	<lgwang@ingenic.cn>
+
+2008.04.21:
+* Modified LCD_CFG_MODE_INTER_CCIR656 define
+	#define LCD_CFG_MODE_INTER_CCIR656	(5 << LCD_CFG_MODE_BIT)
+	should be ==>>
+	#define LCD_CFG_MODE_INTER_CCIR656	(6 << LCD_CFG_MODE_BIT)
+  Update files:
+	include/asm-mips/mach-jz4730/regs.h
+	include/asm-mips/mach-jz4740/regs.h
+	include/asm-mips/mach-jz4750/regs.h
+
+2008.04.14:
+
+* Modify drivers/video/jzslcd.c to suport Smart LCD switches between
+  always refresh and event-driven refresh .  <zyliu@ingenic.cn>
+
+2008.04.01:
+
+* Support multi-framebuffers, update files:
+	drivers/video/Kconfig, add: CONFIG_JZLCD_FRAMEBUFFER_MAX=1
+	drivers/video/jzlcd.h
+	drivers/video/jzlcd.c
+	arch/mips/configs/pavo_defconfig, add: CONFIG_JZLCD_FRAMEBUFFER_MAX=1
+  <lgwang@ingenic.cn>
+
+2008.03.29:
+
+* Modified sound/soc/jz4740/jz4740-i2s.c to support 32KHz PCM sample. <cjfeng@ingenic.cn>
+
+2008.03.28
+
+* Ported new mtd-utils and mkfs.ubifs. <yrtan@ingenic.cn>
+
+2008.03.27
+
+* board_fuwa.h, change GPIO_DISP_OFF_N to GPD25. <lgwang@ingenic.cn>
+* Added lyra_defconfig for JZ4740 LYRA (MP4) board. <zyliu@ingenic.cn>
+
+2008.03.24:
+
+* Added jzslcd.c for Smart LCD framebuffer driver.  <zyliu@ingenic.cn>
+* Modified rtc_jz.c to use some functions in rtc library instead of our function. 
+  <cjfeng@ingenic.cn>
+* Added jz_keypad.c and gpio_keys.c for scan keypad drivers. <cjfeng@ingenic.cn>
+
+2008.03.19:
+
+* Added block-jz.c to support block device layer on top of ubi.
+  <yrtan@ingenic.cn>
+
+2008.03.17:
+
+* Modified jz4740_udc.c to enable the suspend irq when host unloads us.
+  <jlwei@ingenic.cn>
+* pavo_defconfig: select CONFIG_WIRELESS_EXT, CONFIG_PNP and CONFIG_SERIAL_8250_PNP.
+  <lgwang@ingenic.cn>
+
+2008.03.14:
+
+* Modified jz_ts.c jz_ts.h and sadc.c to release CPU by interrupt mode instead of pio mode. 
+  <cjfeng@ingenic.cn>
+
+2008.03.13:
+
+* Fixed a bug in jz4740_udc.c and jz4730_udc.c during rmmod the driver. 
+  <cjfeng@ingenic.cn>
+
+2008.03.10:
+
+* Modified jz_i2s.c to fix the jz_audio_release(). <cjfeng@ingenic.cn>
+
+2008.03.08:
+
+* Fixed udc_hotplug.c to avoid the "unexpected IRQ". <jlwei@ingenic.cn>
+* Fixed jz4740/cpufreq.c of calculating the new_mclk. <lhhuang@ingenic.cn>
+
+2008.03.05:
+
+* Modified drivers/video/console/fbcon.c by adding fb_flashcursor selection.
+  <lgwang@ingenic.cn>
+
+2008.03.04:
+
+* Initial release.

@@ -1,0 +1,7 @@
+choice
+	depends on JZ4760_HDMI_DISPLAY 
+	prompt  "HDMI Chip Select"
+config HDMI_NULL
+	bool "NULL"
+endchoice
+

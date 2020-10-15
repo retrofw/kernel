@@ -1,0 +1,15 @@
+#ifndef __NPCA110P_H__
+#define __NPCA110P_H__
+
+#define SAMPLE_RATE_OFFSET_ONE 8
+#define SAMPLE_RATE_ONE_44100  0x01
+#define SAMPLE_RATE_ONE_48000  0X00
+#define SAMPLE_RATE_OFFSET_TWO 98
+#define SAMPLE_RATE_TWO_44100  0x17
+#define SAMPLE_RATE_TWO_48000  0x18
+
+#define REPLAY_DATA_WIDTH_MASK 0xc3
+#define REPLAY_DATA_WIDTH(n) (n << 4)
+#define RECORD_DATA_WIDTH(n) (n << 2)
+
+#endif

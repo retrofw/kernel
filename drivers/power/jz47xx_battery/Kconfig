@@ -1,0 +1,70 @@
+config BATTERY_JZ47XX
+	bool "JZ47XX battery"
+	select JZ_VOLTAGEM
+	help
+	  Say Y to enable support for the battery in JZ SOC.
+
+if BATTERY_JZ47XX
+
+choice
+	prompt "Default interface"
+	default BATTERY_JZ47XX_ACT8600
+	help
+	  This option sets which interface shall be loaded at
+	  startup.
+config BATTERY_JZ47XX_GPIO
+	bool "interface base on gpio"
+	help
+	  interface base on gpio
+
+config BATTERY_JZ47XX_ACT8600
+	bool "interface base on act8600 pmu driver"
+	depends on PMU_ACT8600_SUPPORT
+	help
+	  interface base on act8600 pmu driver
+
+config BATTERY_JZ47XX_ACT8600V2
+	bool "interface base on act8600 pmu driver v2"
+	depends on PMU_ACT8600_SUPPORT
+	help
+	  interface base on act8600 pmu driver v2
+
+config BATTERY_JZ47XX_FAKE
+	bool "fake interface"
+	help
+	  fake interface for no battery system
+
+endchoice
+
+###############################################################################
+choice
+	prompt "charing mode select"
+	default ACTBAT_NORMAL
+
+config ACTBAT_NORMAL
+	bool "use DC & USB for charing"
+	depends on BATTERY_JZ47XX
+	select ACTBAT_DC
+	select ACTBAT_USB
+
+config ACTBAT_ONLY_DC
+	bool "only DC charging"
+	depends on BATTERY_JZ47XX
+	select ACTBAT_DC
+
+config ACTBAT_ONLY_USB
+	bool "only USB charging"
+	depends on BATTERY_JZ47XX
+	select ACTBAT_USB
+endchoice
+
+
+endif
+
+config ACTBAT_DC
+	bool
+	default n
+config ACTBAT_USB
+	bool
+	default n
+
