@@ -18,6 +18,39 @@
 #define IPU_V_BASE		0xB3080000
 #define IPU_P_BASE		0x13080000
 
+//medive add
+#define IPU_CTRL                (IPU_V_BASE + 0x0 ) /* IPU Control Register */
+#define IPU_STATUS              (IPU_V_BASE + 0x4 ) /* IPU Status Register */
+#define IPU_D_FMT               (IPU_V_BASE + 0x8 ) /* Data Format Register */
+#define IPU_Y_ADDR              (IPU_V_BASE + 0xc ) /* Input Y or YUV422 Packaged Data Address Register */
+#define IPU_U_ADDR              (IPU_V_BASE + 0x10) /* Input U Data Address Register */
+#define IPU_V_ADDR              (IPU_V_BASE + 0x14) /* Input V Data Address Register */
+#define IPU_IN_FM_GS            (IPU_V_BASE + 0x18) /* Input Geometric Size Register */
+#define IPU_Y_STRIDE            (IPU_V_BASE + 0x1c) /* Input Y Data Line Stride Register */
+#define IPU_UV_STRIDE           (IPU_V_BASE + 0x20) /* Input UV Data Line Stride Register */
+#define IPU_OUT_ADDR            (IPU_V_BASE + 0x24) /* Output Frame Start Address Register */
+#define IPU_OUT_GS              (IPU_V_BASE + 0x28) /* Output Geometric Size Register */
+#define IPU_OUT_STRIDE          (IPU_V_BASE + 0x2c) /* Output Data Line Stride Register */
+#define IPU_RSZ_COEF_INDEX      (IPU_V_BASE + 0x30) /* Resize Coefficients Table Index Register */
+#define IPU_CSC_C0_COEF         (IPU_V_BASE + 0x34) /* CSC C0 Coefficient Register */
+#define IPU_CSC_C1_COEF         (IPU_V_BASE + 0x38) /* CSC C1 Coefficient Register */
+#define IPU_CSC_C2_COEF         (IPU_V_BASE + 0x3c) /* CSC C2 Coefficient Register */
+#define IPU_CSC_C3_COEF         (IPU_V_BASE + 0x40) /* CSC C3 Coefficient Register */
+#define IPU_CSC_C4_COEF         (IPU_V_BASE + 0x44) /* CSC C4 Coefficient Register */
+#define IPU_HRSZ_LUT_BASE       (IPU_V_BASE + 0x48) /* Horizontal Resize Coefficients Look Up Table Register group */
+#define IPU_VRSZ_LUT_BASE       (IPU_V_BASE + 0x4c) /* Virtical Resize Coefficients Look Up Table Register group */
+#define IPU_CSC_OFSET_PARA      (IPU_V_BASE + 0x50) /* CSC Offset Parameter Register */
+#define IPU_Y_PHY_T_ADDR        (IPU_V_BASE + 0x54) /* Input Y Physical Table Address Register */
+#define IPU_U_PHY_T_ADDR        (IPU_V_BASE + 0x58) /* Input U Physical Table Address Register */
+#define IPU_V_PHY_T_ADDR        (IPU_V_BASE + 0x5c) /* Input V Physical Table Address Register */
+#define IPU_OUT_PHY_T_ADDR      (IPU_V_BASE + 0x60) /* Output Physical Table Address Register */
+
+#define IPU_ADDR_CTRL           (IPU_V_BASE + 0x64)
+#define IPU_SRC_TLB_ADDR        (IPU_V_BASE + 0x54)
+#define IPU_DEST_TLB_ADDR       (IPU_V_BASE + 0x58)
+
+
+
 /* Register offset */
 #define REG_CTRL		0x0  /* IPU Control Register */
 #define REG_STATUS		0x4  /* IPU Status Register */
