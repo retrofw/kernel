@@ -32,7 +32,12 @@
 #define GPIO_SD0_VCC_EN_N	0 //boot card
 #define GPIO_SD0_CD_N		UNUSED_GPIO_PIN
 #define GPIO_SD2_VCC_EN_N	__GPIO('F', 3) //tf
+
+#ifdef CONFIG_LCD_GOPHER2
+#define GPIO_SD2_CD_N		__GPIO('E', 11)
+#else
 #define GPIO_SD2_CD_N		__GPIO('F', 0)
+#endif
 
 #define GPIO_SD1_VCC_EN_N	UNUSED_GPIO_PIN
 #define GPIO_SD1_CD_N		UNUSED_GPIO_PIN
@@ -180,16 +185,10 @@ do { \
 #define HDMI_I2C_SCL		__GPIO('D', 31)
 #define HDMI_I2C_SDL		__GPIO('D', 30)
 #define GPIO_HDMI_INT_N		0
-#define GPIO_HDMI_HPD		__GPIO('E', 11)
+//#define GPIO_HDMI_HPD		__GPIO('E', 11)
 #define CONFIG_HDMI_HOTPLUG_HPD_CONNECT_LOW_ACTIVE
 
-#define  HP_POWER_EN		__GPIO('E', 9) //shutdown amp
-#define  EARPHONE_DETE		__GPIO('D', 6) //hp detect
-#define  EARPHONE_DETE_IRQ	(IRQ_GPIO_0 + EARPHONE_DETE)
-#define  DETE_ACTIV_LEVEL	0 // 1--is hight 0-- is low
-
-
-#ifdef CONFIG_JZ4760_LCD_TM370_LN430_9 // RetroArcade RS07
+#if defined CONFIG_JZ4760_LCD_TM370_LN430_9 // RetroArcade RS07
 	#define UMIDO_KEY_UP		__GPIO('B', 25)
 	#define UMIDO_KEY_DOWN		__GPIO('B', 24)
 	#define UMIDO_KEY_RIGHT		__GPIO('B', 26)
@@ -202,9 +201,33 @@ do { \
 	#define UMIDO_KEY_R			__GPIO('D', 24)
 	#define UMIDO_KEY_SELECT	__GPIO('D', 17)
 	#define UMIDO_KEY_START		__GPIO('D', 18)
-
+	
+	#define  HP_POWER_EN		__GPIO('E', 9) //shutdown amp
+	#define  EARPHONE_DETE		__GPIO('D', 6) //hp detect
+	#define  DETE_ACTIV_LEVEL	  0 // 1--is hight 0-- is low
 	#define GPIO_USB_DETE		__GPIO('E', 13)
-	#define AV_OUT_DETE			EARPHONE_DETE
+
+#elif defined CONFIG_LCD_GOPHER2
+	#define UMIDO_KEY_UP		__GPIO('D', 23)
+	#define UMIDO_KEY_DOWN		__GPIO('D', 22)
+	#define UMIDO_KEY_RIGHT		__GPIO('D', 24)
+	#define UMIDO_KEY_LEFT		__GPIO('A', 29)
+	#define UMIDO_KEY_A			__GPIO('B', 23)
+	#define UMIDO_KEY_B			__GPIO('B', 24)
+	#define UMIDO_KEY_X			__GPIO('D', 7)
+	#define UMIDO_KEY_Y			__GPIO('D', 6) //__GPIO('B', 16)
+	#define UMIDO_KEY_L			__GPIO('D', 12)
+	#define UMIDO_KEY_R			__GPIO('D', 5)
+	#define UMIDO_KEY_SELECT	__GPIO('D', 17)
+	#define UMIDO_KEY_START		__GPIO('D', 18)
+	#define UMIDO_KEY_VOL_UP	__GPIO('D', 0) //__GPIO('F', 10)
+        #define UMIDO_KEY_VOL_DOWN	__GPIO('B', 26) //__GPIO('F', 9)
+
+	#define  HP_POWER_EN		__GPIO('A', 28) //shutdown amp
+	#define  EARPHONE_DETE		__GPIO('E', 7) //hp detect
+	#define  DETE_ACTIV_LEVEL	  1 // 1--is hight 0-- is low
+	#define  GPIO_USB_DETE		__GPIO('A', 6)
+
 #else
 	#define UMIDO_KEY_UP		__GPIO('B', 25)
 	#define UMIDO_KEY_DOWN		__GPIO('B', 24)
@@ -219,12 +242,29 @@ do { \
 	#define UMIDO_KEY_SELECT	__GPIO('D', 17)
 	#define UMIDO_KEY_START		__GPIO('D', 18)
 
-	#define GPIO_USB_DETE		__GPIO('D', 7)
-	#define AV_OUT_DETE			__GPIO('D', 25)
+	#define  HP_POWER_EN		__GPIO('E', 9) //shutdown amp
+	#define  EARPHONE_DETE		__GPIO('D', 6) //hp detect
+	#define  DETE_ACTIV_LEVEL	  0 // 1--is hight 0-- is low
+	#define  GPIO_USB_DETE		__GPIO('D', 7)
 #endif
 
-#define AV_OUT_DETE_IRQ			(IRQ_GPIO_0 + AV_OUT_DETE)
-#define UMIDO_KEY_LED			__GPIO('D', 21) // backlight
+#if defined CONFIG_LCD_GOPHER2 || defined CONFIG_LCD_PAPK3 || CONFIG_JZ4760_LCD_TM370_LN430_9
+	#define  AV_OUT_DETE		  EARPHONE_DETE
+#else
+	#define AV_OUT_DETE		__GPIO('D', 25)
+#endif
+
+#define  EARPHONE_DETE_IRQ		(IRQ_GPIO_0 + EARPHONE_DETE)
+#define  AV_OUT_DETE_IRQ		(IRQ_GPIO_0 + AV_OUT_DETE)
+
+#ifdef CONFIG_LCD_PAPK3
+	#define UMIDO_KEY_VOL_UP	__GPIO('D', 21) //__GPIO('F', 10)
+        #define UMIDO_KEY_VOL_DOWN	__GPIO('D', 25) //__GPIO('F', 9)
+	#define UMIDO_KEY_LED             UNUSED_GPIO_PIN
+#else
+	#define UMIDO_KEY_LED            __GPIO('D', 21)
+#endif
+
 #define BATTERY_LOW_LED			__GPIO('E', 31)
 
 //battery detect
@@ -238,9 +278,6 @@ do { \
 #define GPIO_OTG_ID_PIN			__GPIO('A', 11)
 #define GPIO_OTG_ID_IRQ			(IRQ_GPIO_0 + GPIO_OTG_ID_PIN)
 #define GPIO_OTG_STABLE_JIFFIES	10
-
-//#define UMIDO_KEY_VOL_UP		__GPIO('D', 25) //__GPIO('F', 10)
-//#define UMIDO_KEY_VOL_DOWN	__GPIO('D', 21) //__GPIO('F', 9)
 
 #define SAMPLE_TIMES			5
 
