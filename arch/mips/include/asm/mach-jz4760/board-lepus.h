@@ -244,7 +244,7 @@ do { \
 #ifdef CONFIG_LCD_PAPK3
 	#define UMIDO_KEY_VOL_UP	__GPIO('D', 21) //__GPIO('F', 10)
         #define UMIDO_KEY_VOL_DOWN	__GPIO('D', 25) //__GPIO('F', 9)
-	#define UMIDO_KEY_LED             UNUSED_GPIO_PIN
+	#define UMIDO_KEY_LED           0
 #else
 	#define UMIDO_KEY_LED            __GPIO('D', 21)
 #endif
