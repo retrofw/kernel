@@ -760,11 +760,17 @@ config RTC_DRV_PS3
 	  This driver can also be built as a module. If so, the module
 	  will be called rtc-ps3.
 
+config RTC_DRV_JZ4760
+	tristate 'JZ4760 On-Chip Real Time Clock'
+	depends on SOC_JZ4760
+	help
+	  Jz4760 On-Chip Real Time Clock
+
 config RTC_DRV_JZ4760B
-	tristate "jz4760b rtc"
+	tristate "JZ4760B On-Chip Real Time Clock"
 	depends on SOC_JZ4760B
 	help
-	  If you say yes here you get support for the Dallas DS1216 RTC chips.
+	  Jz4760B On-Chip Real Time Clock
 
 config RTC_DRV_JZ4770
 	tristate "jz4770 rtc"

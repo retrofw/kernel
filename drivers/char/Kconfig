@@ -822,13 +822,6 @@ config SPI_SLAVE
 	help
 		Enable Y here to support JZ SPI Slave Device.
 
-
-config RTC_JZ4760
-	bool 'Jz4760 On-Chip Real Time Clock'
-	depends on SOC_JZ4760
-	help
-	  Jz4760 On-Chip Real Time Clock
-
 #
 # These legacy RTC drivers just cause too many conflicts with the generic
 # RTC framework ... let's not even try to coexist any more.

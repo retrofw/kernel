@@ -78,5 +78,6 @@ obj-$(CONFIG_RTC_DRV_WM8350)	+= rtc-wm8350.o
 obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
 obj-$(CONFIG_RTC_DRV_PCF50633)	+= rtc-pcf50633.o
 obj-$(CONFIG_RTC_DRV_PS3)	+= rtc-ps3.o
+obj-$(CONFIG_RTC_DRV_JZ4760)	+= rtc-jz4760.o
 obj-$(CONFIG_RTC_DRV_JZ4760B)	+= rtc-jz4760b.o
 obj-$(CONFIG_RTC_DRV_JZ4770)	+= rtc-jz4770.o

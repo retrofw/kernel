@@ -102,7 +102,6 @@ obj-$(CONFIG_TELCLOCK)		+= tlclk.o
 obj-$(CONFIG_RTC_PCF8563)	+= rtc_pcf8563.o
 obj-$(CONFIG_RTC_JZ)		+= rtc_jz.o
 obj-$(CONFIG_SPI_SLAVE)	+= spi_slave.o
-obj-$(CONFIG_RTC_JZ4760)	+= rtc-jz4760.o
 obj-$(CONFIG_JZCHAR)		+= jzchar/
 
 obj-$(CONFIG_MWAVE)		+= mwave/
