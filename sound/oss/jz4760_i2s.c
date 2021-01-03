@@ -683,9 +683,8 @@ static int jz_request_aic_dma(int dev_id, const char *dev_str,
 	}
 
 	// Open AIC_TX and AIC_RX
-#ifdef CONFIG_SOC_JZ4760
 	REG_DMAC_DMACKE(1) = 1 << (DMA_RX_CHAN - HALF_DMA_NUM) | 1 << (DMA_TX_CHAN - HALF_DMA_NUM);
-#else
+#ifdef CONFIG_SOC_JZ4760B
 	REG_DMAC_DMACKS(1) = 1 << (DMA_RX_CHAN - HALF_DMA_NUM) | 1 << (DMA_TX_CHAN - HALF_DMA_NUM);
 #endif
 	return i;

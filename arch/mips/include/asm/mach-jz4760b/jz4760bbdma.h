@@ -178,6 +178,7 @@
 #define __bdmac_test_addr_error ( REG_BDMAC_DMACR & BDMAC_DMACR_AR )
 
 #define __bdmac_channel_enable_clk(n)           \
+	REG_BDMAC_DMACKE |= 1 << (n); \
 	REG_BDMAC_DMACKES |= 1 << (n);
 
 #define __bdmac_enable_descriptor(n) \

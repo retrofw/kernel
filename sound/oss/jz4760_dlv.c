@@ -1378,7 +1378,7 @@ static void dlv_enable_mic_1(void)
 	__dlv_enable_mic_diff();
 #endif
 
-#ifdef CONFIG_JZ4760_LEPUS
+#if defined(CONFIG_JZ4760_LEPUS) || defined(CONFIG_JZ4760B_LEPUS)
 	__dlv_enable_mic_diff();
 #endif
 

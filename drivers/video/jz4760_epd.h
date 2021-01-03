@@ -133,7 +133,7 @@ struct jz4760lcd_info {
 /*
  * Platform specific definition
  */
-#if defined(CONFIG_SOC_JZ4760) || defined(CONFIG_SOC_JZ4760D)
+#if defined(CONFIG_SOC_JZ4760) || defined(CONFIG_SOC_JZ4760B)
 
 #if defined(CONFIG_JZ4760_APUS) /* board apus */
 #define __lcd_display_pin_init() \

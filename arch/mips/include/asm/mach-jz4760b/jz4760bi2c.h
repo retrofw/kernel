@@ -215,6 +215,8 @@
 #define __i2c_is_enable(n)       ( REG_I2C_ENSTA(n) & I2C_ENB_I2CENB )
 #define __i2c_is_disable(n)      ( !(REG_I2C_ENSTA(n) & I2C_ENB_I2CENB) )
 
+#define __i2c_abrt_intr(n)       (REG_I2C_INTST(n) & I2C_INTST_TXABT)
+
 #define __i2c_abrt(n)            ( REG_I2C_TXABRT(n) != 0 )
 #define __i2c_master_active(n)   ( REG_I2C_STA(n) & I2C_STA_MSTACT )
 #define __i2c_abrt_7b_addr_nack(n)  ( REG_I2C_TXABRT(n) & I2C_TXABRT_ABRT_7B_ADDR_NOACK )

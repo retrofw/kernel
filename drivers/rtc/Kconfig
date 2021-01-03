@@ -762,7 +762,7 @@ config RTC_DRV_PS3
 
 config RTC_DRV_JZ4760
 	tristate 'JZ4760 On-Chip Real Time Clock'
-	depends on SOC_JZ4760
+	depends on SOC_JZ4760 || SOC_JZ4760B
 	help
 	  Jz4760 On-Chip Real Time Clock
 

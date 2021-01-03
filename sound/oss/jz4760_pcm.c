@@ -1465,7 +1465,9 @@ static int jz_audio_open(struct inode *inode, struct file *file)
 	}
 
 	/* FIXME: do not enable all CKE here! */
+	REG_DMAC_DMACKE(0) = 0x3f;
 	REG_DMAC_DMACKS(0) = 0x3f;
+	REG_DMAC_DMACKE(1) = 0x3f;
 	REG_DMAC_DMACKS(1) = 0x3f;
 	if (file->f_mode & FMODE_WRITE) {
 		if (controller->opened1 == 1)

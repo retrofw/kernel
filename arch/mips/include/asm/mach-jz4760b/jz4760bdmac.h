@@ -37,7 +37,7 @@
 #define DMAC_DMAIPR(m)	(DMAC_BASE + 0x0304 + 0x100 * (m))              /* DMA interrupt pending */
 #define DMAC_DMADBR(m)	(DMAC_BASE + 0x0308 + 0x100 * (m))              /* DMA doorbell */
 #define DMAC_DMADBSR(m)	(DMAC_BASE + 0x030C + 0x100 * (m))              /* DMA doorbell set */
-#define DMAC_DMACK(m)  (DMAC_BASE + 0x0310 + 0x100 * (m))
+#define DMAC_DMACKE(m)  (DMAC_BASE + 0x0310 + 0x100 * (m))
 #define DMAC_DMACKS(m)  (DMAC_BASE + 0x0314 + 0x100 * (m))
 #define DMAC_DMACKC(m)  (DMAC_BASE + 0x0318 + 0x100 * (m))
 
@@ -53,7 +53,7 @@
 #define REG_DMAC_DMAIPR(m)	REG32(DMAC_DMAIPR(m))
 #define REG_DMAC_DMADBR(m)	REG32(DMAC_DMADBR(m))
 #define REG_DMAC_DMADBSR(m)	REG32(DMAC_DMADBSR(m))
-#define REG_DMAC_DMACK(m)      REG32(DMAC_DMACK(m))
+#define REG_DMAC_DMACKE(m)      REG32(DMAC_DMACKE(m))
 #define REG_DMAC_DMACKS(m)      REG32(DMAC_DMACKS(m))
 #define REG_DMAC_DMACKC(m)      REG32(DMAC_DMACKC(m))
 
@@ -244,6 +244,7 @@
 #define __dmac_test_addr_error(m) ( REG_DMAC_DMACR(m) & DMAC_DMACR_AR )
 
 #define __dmac_channel_enable_clk(n)					\
+	REG_DMAC_DMACKE((n)/HALF_DMA_NUM) |= 1 << ((n)-(n)/HALF_DMA_NUM*HALF_DMA_NUM); \
 	REG_DMAC_DMACKS((n)/HALF_DMA_NUM) |= 1 << ((n)-(n)/HALF_DMA_NUM*HALF_DMA_NUM);
 
 #define __dmac_channel_clear_clk(n)					\

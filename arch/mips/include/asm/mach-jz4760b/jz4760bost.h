@@ -20,33 +20,21 @@
  * OST registers offset address definition
  */
 #define OST_OSTDR_OFFSET	(0xe0)  /* rw, 32, 0x???????? */
-#if defined(CONFIG_SOC_JZ4760B)
 #define OST_OSTCNTL_OFFSET	(0xe4)
 #define OST_OSTCNTH_OFFSET	(0xe8)
-#else
 #define OST_OSTCNT_OFFSET	(0xe8)  /* rw, 32, 0x???????? */
-#endif
 #define OST_OSTCSR_OFFSET	(0xec)  /* rw, 16, 0x0000 */
-
-#if defined(CONFIG_SOC_JZ4760B)
 #define OST_OSTCNTH_BUF_OFFSET	(0xfc)
-#endif
-
 
 /*
  * OST registers address definition
  */
 #define OST_OSTDR	(OST_BASE + OST_OSTDR_OFFSET)
-#if defined(CONFIG_SOC_JZ4760B)
 #define OST_OSTCNTL	(OST_BASE + OST_OSTCNTL_OFFSET)
 #define OST_OSTCNTH	(OST_BASE + OST_OSTCNTH_OFFSET)
-#else
 #define OST_OSTCNT	(OST_BASE + OST_OSTCNT_OFFSET)
-#endif
 #define OST_OSTCSR	(OST_BASE + OST_OSTCSR_OFFSET)
-#if defined(CONFIG_SOC_JZ4760B)
 #define OST_OSTCNTH_BUF	(OST_BASE + OST_OSTCNTH_BUF_OFFSET)
-#endif
 
 
 /*
@@ -73,19 +61,11 @@
 #ifndef __MIPS_ASSEMBLER
 
 #define REG_OST_OSTDR		REG32(OST_OSTDR)
-
-#if defined(CONFIG_SOC_JZ4760B)
 #define REG_OST_OSTCNTL		REG32(OST_OSTCNTL)
 #define REG_OST_OSTCNTH		REG32(OST_OSTCNTH)
-#else
 #define REG_OST_OSTCNT		REG32(OST_OSTCNT)
-#endif
-
 #define REG_OST_OSTCSR		REG16(OST_OSTCSR)
-
-#if defined(CONFIG_SOC_JZ4760B)
 #define REG_OST_OSTCNTH_BUF	REG32(OST_OSTCNTH_BUF)
-#endif
 
 #endif /* __MIPS_ASSEMBLER */
 

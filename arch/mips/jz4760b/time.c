@@ -61,55 +61,33 @@ static struct irqaction jz_irqaction = {
 	.name		= "jz-timerirq",
 };
 
+static unsigned int current_cycle_high = 0;
+
 union clycle_type
 {
 	cycle_t cycle64;
 	unsigned int cycle32[2];
 };
 
-#if defined(CONFIG_SOC_JZ4760B)
 cycle_t jz_get_cycles(void)
 {
 	/* convert jiffes to jz timer cycles */
 	unsigned long cpuflags;
+	unsigned int flag;
 	union clycle_type old_cycle;
 
 	local_irq_save(cpuflags);
-	old_cycle.cycle32[0] = REG_OST_OSTCNTL;
-	old_cycle.cycle32[1] = REG_OST_OSTCNTH_BUF;
+	flag = (REG_TCU_TFR & TFCR_OSTFLAG) ? 1: 0;
 	local_irq_restore(cpuflags);
-
+	old_cycle.cycle32[0] = REG_OST_OSTCNT | REG_OST_OSTCNTL;
+	old_cycle.cycle32[1] = (current_cycle_high + flag) | REG_OST_OSTCNTH_BUF;
 	return (old_cycle.cycle64);
-}
-#else
-static unsigned int current_cycle_high = 0;
-cycle_t jz_get_cycles(void)
-{
-	/* convert jiffes to jz timer cycles */
-	unsigned int ostcount;
-        unsigned long cpuflags;
-        unsigned int current_cycle;
-        unsigned int flag;
-        union clycle_type old_cycle;
-
-        local_irq_save(cpuflags);
-        current_cycle = current_cycle_high;
-        ostcount = REG_OST_OSTCNT;
-        flag = (REG_TCU_TFR & TFCR_OSTFLAG) ? 1: 0;
-        if(flag)
-                ostcount = REG_OST_OSTCNT;
-        local_irq_restore(cpuflags);
-
-        old_cycle.cycle32[0] = ostcount;
-        old_cycle.cycle32[1] = current_cycle + flag;
-
-        return (old_cycle.cycle64);
 }
 
 static irqreturn_t jzclock_handler(int irq, void *dev_id)
 {
 	REG_TCU_TFCR = TFCR_OSTFLAG; /* ACK timer */
-	//	current_cycle_high++;
+	current_cycle_high++;
 
 	return IRQ_HANDLED;
 }
@@ -119,7 +97,6 @@ static struct irqaction jz_clockaction = {
 	.flags		= IRQF_DISABLED  | IRQF_TIMER,
 	.name		= "jz-clockcycle",
 };
-#endif	/* !CONFIG_SOC_JZ4760B */
 
 static struct clocksource clocksource_jz = {
 	.name 		= "jz_clocksource",
@@ -143,17 +120,12 @@ static int __init jz_clocksource_init(void)
 	//---------------------init sys clock -----------------
 	REG_OST_OSTCSR = OSTCSR_PRESCALE16 | OSTCSR_EXT_EN;
 	REG_OST_OSTDR = 0xffffffff;
-#if defined(CONFIG_SOC_JZ4760B)
 	REG_OST_OSTCNTL = 0;
 	REG_OST_OSTCNTH = 0;
-#else
 	REG_OST_OSTCNT = 0;
 	jz_clockaction.dev_id = &clocksource_jz;
 
 	setup_irq(IRQ_TCU0, &jz_clockaction);
-#endif
-
-
 	REG_TCU_TMCR = TMCR_OSTMASK; /* unmask match irq */
 	REG_TCU_TSCR = TSCR_OST;  /* enable timer clock */
 	REG_TCU_TESR = TESR_OST;  /* start counting up */
