@@ -128,7 +128,7 @@ static void jz_kbd_poll(struct input_polled_dev *dev)
 // #endif
 
 #ifdef GPIO_BACKLIGHT
-	if (s & (1 << GPIO_BACKLIGHT) && !kbd->backlight_state && backlight_control) {
+	if (alt_keys != 2 && s & (1 << GPIO_BACKLIGHT) && !kbd->backlight_state && backlight_control) {
 		backlight_value = jz4760fb_get_backlight_level() + 20;
 		if (backlight_value >= 120)
 			backlight_value = 5;
@@ -206,7 +206,7 @@ static void jz_kbd_poll(struct input_polled_dev *dev)
 
 #ifdef GPIO_POWER
 	/* If power button is pressed... */
-	if (s & (1 << GPIO_POWER)) {
+	if (alt_keys != 2 && s & (1 << GPIO_POWER)) {
 		for (i = 0, m = 1; i < ARRAY_SIZE(jz_button); i++, m <<= 1) {
 			if ((m != (1 << GPIO_POWER)) && (s & m)) {
 				goto normal; // I hate this but it's the best way to prevent code duplication
