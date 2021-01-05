@@ -288,6 +288,34 @@ config KEYBOARD_GPIO
 	  To compile this driver as a module, choose M here: the
 	  module will be called gpio_keys.
 
+#
+# JZ Custom Button Layout
+#
+choice
+	depends on KEYBOARD_GPIO
+	prompt "GPIO Layout"
+	default GPIO_NONE
+	---help---
+	   Select the hardware GPIO layout
+	   used in mach-jz4760b/board-lepus.h
+
+config GPIO_NONE
+	bool "** Select GPIO layout"
+
+config GPIO_RETROGAME
+	bool "RetroGame"
+
+config GPIO_RETROARCADE
+	bool "RetroArcade"
+
+config GPIO_GOPHER2
+	bool "Gopher 2"
+
+config GPIO_PAPK3
+	bool "PAP K3 Plus"
+
+endchoice
+
 config KEYBOARD_MAPLE
 	tristate "Maple bus keyboard"
 	depends on SH_DREAMCAST && MAPLE

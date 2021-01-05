@@ -19,6 +19,7 @@
 #define __GPIO(p, n) (32 * (p - 'A') + n)
 
 #define UNUSED_GPIO_PIN		(0xffffffff)
+#define GPIO_NONE			0
 
 #define GPIO_POWER_ON		__GPIO('A', 30)
 #define ACTIVE_LOW_WAKE_UP	1
@@ -33,14 +34,9 @@
 #define GPIO_SD0_CD_N		UNUSED_GPIO_PIN
 #define GPIO_SD2_VCC_EN_N	__GPIO('F', 3) //tf
 
-#ifdef CONFIG_LCD_GOPHER2
-#define GPIO_SD2_CD_N		__GPIO('E', 11)
-#else
-#define GPIO_SD2_CD_N		__GPIO('F', 0)
-#endif
-
 #define GPIO_SD1_VCC_EN_N	UNUSED_GPIO_PIN
 #define GPIO_SD1_CD_N		UNUSED_GPIO_PIN
+
 
 /*====================================================================
  *  ADKEYS LEVEL
@@ -50,7 +46,6 @@
 #define DPAD_UP_LEVEL		1985 //1.6V
 #define DPAD_CENTER_LEVEL	1489 //1.2V
 #define DPAD_RIGHT_LEVEL	868 //0.7V
-
 
 
 /*======================================================================
@@ -188,26 +183,36 @@ do { \
 //#define GPIO_HDMI_HPD		__GPIO('E', 11)
 #define CONFIG_HDMI_HOTPLUG_HPD_CONNECT_LOW_ACTIVE
 
-#if defined CONFIG_JZ4760_LCD_TM370_LN430_9 // RetroArcade RS07
+
+#if defined(CONFIG_GPIO_RETROARCADE)
+	#define GPIO_SD2_CD_N		__GPIO('F', 0)
+
 	#define UMIDO_KEY_UP		__GPIO('B', 25)
 	#define UMIDO_KEY_DOWN		__GPIO('B', 24)
 	#define UMIDO_KEY_RIGHT		__GPIO('B', 26)
 	#define UMIDO_KEY_LEFT		__GPIO('D', 0)
 	#define UMIDO_KEY_A			__GPIO('D', 23)
-	#define UMIDO_KEY_B			__GPIO('B', 16) //__GPIO('D', 22)
+	#define UMIDO_KEY_B			__GPIO('B', 16)
 	#define UMIDO_KEY_X			__GPIO('B', 15)
-	#define UMIDO_KEY_Y			__GPIO('D', 22) //__GPIO('B', 16)
+	#define UMIDO_KEY_Y			__GPIO('D', 22)
 	#define UMIDO_KEY_L			__GPIO('B', 23)
 	#define UMIDO_KEY_R			__GPIO('D', 24)
 	#define UMIDO_KEY_SELECT	__GPIO('D', 17)
 	#define UMIDO_KEY_START		__GPIO('D', 18)
-	
-	#define  HP_POWER_EN		__GPIO('E', 9) //shutdown amp
-	#define  EARPHONE_DETE		__GPIO('D', 6) //hp detect
-	#define  DETE_ACTIV_LEVEL	  0 // 1--is hight 0-- is low
-	#define GPIO_USB_DETE		__GPIO('E', 13)
 
-#elif defined CONFIG_LCD_GOPHER2
+	#define UMIDO_KEY_VOL_UP	GPIO_NONE
+	#define UMIDO_KEY_VOL_DOWN	GPIO_NONE
+	
+	#define HP_POWER_EN			__GPIO('E', 9) // shutdown amp
+	#define EARPHONE_DETE		__GPIO('D', 6) // hp detect
+	#define DETE_ACTIV_LEVEL	0 // 1: high 0: low
+	#define GPIO_USB_DETE		__GPIO('E', 13)
+	#define AV_OUT_DETE		  	EARPHONE_DETE
+	#define UMIDO_KEY_LED		__GPIO('D', 21)
+
+#elif defined(CONFIG_GPIO_GOPHER2)
+	#define GPIO_SD2_CD_N		__GPIO('E', 11)
+
 	#define UMIDO_KEY_UP		__GPIO('D', 23)
 	#define UMIDO_KEY_DOWN		__GPIO('D', 22)
 	#define UMIDO_KEY_RIGHT		__GPIO('D', 24)
@@ -215,62 +220,81 @@ do { \
 	#define UMIDO_KEY_A			__GPIO('B', 23)
 	#define UMIDO_KEY_B			__GPIO('B', 24)
 	#define UMIDO_KEY_X			__GPIO('D', 7)
-	#define UMIDO_KEY_Y			__GPIO('D', 6) //__GPIO('B', 16)
+	#define UMIDO_KEY_Y			__GPIO('D', 6)
 	#define UMIDO_KEY_L			__GPIO('D', 12)
 	#define UMIDO_KEY_R			__GPIO('D', 5)
 	#define UMIDO_KEY_SELECT	__GPIO('D', 17)
 	#define UMIDO_KEY_START		__GPIO('D', 18)
-	#define UMIDO_KEY_VOL_UP	__GPIO('D', 0) //__GPIO('F', 10)
-        #define UMIDO_KEY_VOL_DOWN	__GPIO('B', 26) //__GPIO('F', 9)
 
-	#define  HP_POWER_EN		__GPIO('A', 28) //shutdown amp
-	#define  EARPHONE_DETE		__GPIO('E', 7) //hp detect
-	#define  DETE_ACTIV_LEVEL	  1 // 1--is hight 0-- is low
-	#define  GPIO_USB_DETE		__GPIO('A', 6)
+	#define UMIDO_KEY_VOL_UP	__GPIO('D', 0)
+	#define UMIDO_KEY_VOL_DOWN	__GPIO('B', 26)
 
-#else
+	#define HP_POWER_EN			__GPIO('A', 28) // shutdown amp
+	#define EARPHONE_DETE		__GPIO('E', 7) // hp detect
+	#define DETE_ACTIV_LEVEL	1 // 1: high 0: low
+	#define GPIO_USB_DETE		__GPIO('A', 6)
+	#define AV_OUT_DETE		  	EARPHONE_DETE
+	#define UMIDO_KEY_LED		__GPIO('D', 21)
+
+#elif defined(CONFIG_GPIO_PAPK3)
+	#define GPIO_SD2_CD_N		__GPIO('F', 0)
+
 	#define UMIDO_KEY_UP		__GPIO('B', 25)
 	#define UMIDO_KEY_DOWN		__GPIO('B', 24)
 	#define UMIDO_KEY_RIGHT		__GPIO('B', 26)
-	#define UMIDO_KEY_LEFT		__GPIO('D', 0) //__GPIO('B', 27)
-	#define UMIDO_KEY_A			__GPIO('D', 22) //__GPIO('F', 6)
-	#define UMIDO_KEY_B			__GPIO('D', 23) //__GPIO('F', 11)
-	#define UMIDO_KEY_X			__GPIO('E', 7) //__GPIO('F', 4)
-	#define UMIDO_KEY_Y			__GPIO('E', 11) //__GPIO('F', 5)
+	#define UMIDO_KEY_LEFT		__GPIO('D', 0)
+	#define UMIDO_KEY_A			__GPIO('D', 22)
+	#define UMIDO_KEY_B			__GPIO('D', 23)
+	#define UMIDO_KEY_X			__GPIO('E', 7)
+	#define UMIDO_KEY_Y			__GPIO('E', 11)
 	#define UMIDO_KEY_L			__GPIO('B', 23)
-	#define UMIDO_KEY_R			__GPIO('D', 24) //__GPIO('F', 8)
+	#define UMIDO_KEY_R			__GPIO('D', 24)
 	#define UMIDO_KEY_SELECT	__GPIO('D', 17)
 	#define UMIDO_KEY_START		__GPIO('D', 18)
 
-	#define  HP_POWER_EN		__GPIO('E', 9) //shutdown amp
-	#define  EARPHONE_DETE		__GPIO('D', 6) //hp detect
-	#define  DETE_ACTIV_LEVEL	  0 // 1--is hight 0-- is low
-	#define  GPIO_USB_DETE		__GPIO('D', 7)
-#endif
+	#define UMIDO_KEY_VOL_UP	__GPIO('D', 21)
+	#define UMIDO_KEY_VOL_DOWN	__GPIO('D', 25)
 
-#if defined CONFIG_LCD_GOPHER2 || defined CONFIG_LCD_PAPK3 || CONFIG_JZ4760_LCD_TM370_LN430_9
-	#define  AV_OUT_DETE		  EARPHONE_DETE
+	#define HP_POWER_EN			__GPIO('E', 9) // shutdown amp
+	#define EARPHONE_DETE		__GPIO('D', 6) // hp detect
+	#define DETE_ACTIV_LEVEL	0 // 1: high 0: low
+	#define GPIO_USB_DETE		__GPIO('D', 7)
+	#define AV_OUT_DETE		  	EARPHONE_DETE
+	#define UMIDO_KEY_LED		GPIO_NONE
+
+#elif defined(CONFIG_GPIO_RETROGAME)
+	#define GPIO_SD2_CD_N		__GPIO('F', 0)
+
+	#define UMIDO_KEY_UP		__GPIO('B', 25)
+	#define UMIDO_KEY_DOWN		__GPIO('B', 24)
+	#define UMIDO_KEY_RIGHT		__GPIO('B', 26)
+	#define UMIDO_KEY_LEFT		__GPIO('D', 0)
+	#define UMIDO_KEY_A			__GPIO('D', 22)
+	#define UMIDO_KEY_B			__GPIO('D', 23)
+	#define UMIDO_KEY_X			__GPIO('E', 7)
+	#define UMIDO_KEY_Y			__GPIO('E', 11)
+	#define UMIDO_KEY_L			__GPIO('B', 23)
+	#define UMIDO_KEY_R			__GPIO('D', 24)
+	#define UMIDO_KEY_SELECT	__GPIO('D', 17)
+	#define UMIDO_KEY_START		__GPIO('D', 18)
+
+	#define UMIDO_KEY_VOL_UP	GPIO_NONE
+	#define UMIDO_KEY_VOL_DOWN	GPIO_NONE
+
+	#define HP_POWER_EN			__GPIO('E', 9) // shutdown amp
+	#define EARPHONE_DETE		__GPIO('D', 6) // hp detect
+	#define DETE_ACTIV_LEVEL	0 // 1: high 0: low
+	#define GPIO_USB_DETE		__GPIO('D', 7)
+	#define AV_OUT_DETE			__GPIO('D', 25)
+	#define UMIDO_KEY_LED		__GPIO('D', 21)
 #else
-	#define AV_OUT_DETE		__GPIO('D', 25)
-#endif
-
-#define  EARPHONE_DETE_IRQ		(IRQ_GPIO_0 + EARPHONE_DETE)
-#define  AV_OUT_DETE_IRQ		(IRQ_GPIO_0 + AV_OUT_DETE)
-
-#ifdef CONFIG_LCD_PAPK3
-	#define UMIDO_KEY_VOL_UP	__GPIO('D', 21) //__GPIO('F', 10)
-        #define UMIDO_KEY_VOL_DOWN	__GPIO('D', 25) //__GPIO('F', 9)
-	#define UMIDO_KEY_LED             UNUSED_GPIO_PIN
-#else
-	#define UMIDO_KEY_LED            __GPIO('D', 21)
+	#error "mach-jz4760b/board-lepus.h: please define the GPIO layout for this board."
 #endif
 
 #define BATTERY_LOW_LED			__GPIO('E', 31)
 
-//battery detect
-//#define CHARGE_DET           __GPIO('E', 13)
-//#define GPIO_TS_I2C_INT      __GPIO('D', 4)
-//#define GPIO_TS_I2C_IRQ      (IRQ_GPIO_0 + GPIO_TS_I2C_INT)
+#define EARPHONE_DETE_IRQ		(IRQ_GPIO_0 + EARPHONE_DETE)
+#define AV_OUT_DETE_IRQ			(IRQ_GPIO_0 + AV_OUT_DETE)
 
 #define UDC_HOTPLUG_PIN			GPIO_USB_DETE
 #define OTG_HOTPLUG_PIN			GPIO_USB_DETE
@@ -280,9 +304,6 @@ do { \
 #define GPIO_OTG_STABLE_JIFFIES	10
 
 #define SAMPLE_TIMES			5
-
-//#define HOLD_DETET			__GPIO('B', 28)
-//#define  FM_ANT_EN			__GPIO('B', 28)
 
 #define JZ_EARLY_UART_BASE		UART1_BASE
 

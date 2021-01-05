@@ -62,10 +62,8 @@ static const struct {
 	{ .gpio = UMIDO_KEY_R,		.actlow = 1,	.ncode = KEY_BACKSPACE,	.scode = KEY_PAGEDOWN,				}, /* Right shoulder button */
 	{ .gpio = UMIDO_KEY_LED,	.actlow = 1,	.ncode = KEY_LEFTBRACE, .scode = KEY_RIGHTBRACE,			},
 	{ .gpio = GPIO_POWER_ON,	.actlow = 1,	.ncode = KEY_END, 		.scode = KEY_POWER,					},
-#if defined CONFIG_LCD_GOPHER2 || defined CONFIG_LCD_PAPK3
-	{ .gpio = UMIDO_KEY_VOL_UP,	.actlow = 1,	.ncode = KEY_1,							}, /* START button(SYSRQ) */
-	{ .gpio = UMIDO_KEY_VOL_DOWN,	.actlow = 1,	.ncode = KEY_2,						}, /* START button(SYSRQ) */
-#endif
+	{ .gpio = UMIDO_KEY_VOL_UP,	.actlow = 1,	.ncode = KEY_VOLUMEUP,	.scode = KEY_KPPLUS,				},
+	{ .gpio = UMIDO_KEY_VOL_DOWN,.actlow = 1,	.ncode = KEY_VOLUMEDOWN,.scode = KEY_KPMINUS,				},
 };
 
 // #define GPIO_POWER		(125)	/* Power slider */
