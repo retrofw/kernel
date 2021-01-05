@@ -99,6 +99,8 @@ int alt_keys = 0;
 
 static void jz_kbd_poll(struct input_polled_dev *dev)
 {
+	if (alt_keys < 0) return;
+
 	struct jz_kbd *kbd = dev->private;
 	struct input_dev *input = kbd->poll_dev->input;
 	unsigned int i; //, p, sync = 0;
@@ -290,7 +292,7 @@ static int jz_alt_keys_read_proc(char *page, char **start, off_t off, int count,
 
 static int jz_alt_keys_write_proc(struct file *file, const char *buffer, unsigned long count, void *data)
 {
-	alt_keys = simple_strtoul(buffer, 0, 10);
+	alt_keys = simple_strtol(buffer, 0, 10);
 	return count;
 }
 
