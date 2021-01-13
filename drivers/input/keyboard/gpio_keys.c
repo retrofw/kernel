@@ -95,11 +95,11 @@ extern int jz4760fb_get_backlight_level(void);
 extern void jz4760fb_set_backlight_level(int n);
 #endif
 int backlight_value = -1;
-int alt_keys = 0;
+int key_mode;
 
 static void jz_kbd_poll(struct input_polled_dev *dev)
 {
-	if (alt_keys < 0) return;
+	if (!key_mode) return;
 
 	struct jz_kbd *kbd = dev->private;
 	struct input_dev *input = kbd->poll_dev->input;
@@ -128,7 +128,7 @@ static void jz_kbd_poll(struct input_polled_dev *dev)
 // #endif
 
 #ifdef GPIO_BACKLIGHT
-	if (alt_keys != 2 && s & (1 << GPIO_BACKLIGHT) && !kbd->backlight_state && backlight_control) {
+	if (key_mode != 3 && s & (1 << GPIO_BACKLIGHT) && !kbd->backlight_state && backlight_control) {
 		backlight_value = jz4760fb_get_backlight_level() + 20;
 		if (backlight_value >= 120)
 			backlight_value = 5;
@@ -164,7 +164,7 @@ static void jz_kbd_poll(struct input_polled_dev *dev)
 		while(!__gpio_get_pin(GPIO_POWER_ON));
 	}
 
-	if (alt_keys == 2 && (s & (1 << GPIO_SPECIAL))) {
+	if (key_mode == 3 && (s & (1 << GPIO_SPECIAL))) {
 		/* Calculate changed button state for special keycodes */
 		x = s ^ kbd->special_state;
 
@@ -206,7 +206,7 @@ static void jz_kbd_poll(struct input_polled_dev *dev)
 
 #ifdef GPIO_POWER
 	/* If power button is pressed... */
-	if (alt_keys != 2 && s & (1 << GPIO_POWER)) {
+	if (key_mode != 3 && s & (1 << GPIO_POWER)) {
 		for (i = 0, m = 1; i < ARRAY_SIZE(jz_button); i++, m <<= 1) {
 			if ((m != (1 << GPIO_POWER)) && (s & m)) {
 				goto normal; // I hate this but it's the best way to prevent code duplication
@@ -249,7 +249,7 @@ static void jz_kbd_poll(struct input_polled_dev *dev)
 
 		/* Generate normal keycodes for changed keys */
 		for (i = 0, m = 1; i < ARRAY_SIZE(jz_button); i++, m <<= 1) {
-			if (alt_keys == 1 && jz_button[i].acode) {
+			if (key_mode == 2 && jz_button[i].acode) {
 				input_report_key(input, jz_button[i].acode, s & m);
 			}
 			else if (/*(x & m) && */jz_button[i].ncode) {
@@ -285,14 +285,14 @@ static void jz_kbd_poll(struct input_polled_dev *dev)
 	/* TODO: unlock */
 }
 
-static int jz_alt_keys_read_proc(char *page, char **start, off_t off, int count, int *eof, void *data)
+static int jz_key_mode_read_proc(char *page, char **start, off_t off, int count, int *eof, void *data)
 {
-	return sprintf(page, "%u\n", alt_keys);
+	return sprintf(page, "%u\n", key_mode);
 }
 
-static int jz_alt_keys_write_proc(struct file *file, const char *buffer, unsigned long count, void *data)
+static int jz_key_mode_write_proc(struct file *file, const char *buffer, unsigned long count, void *data)
 {
-	alt_keys = simple_strtol(buffer, 0, 10);
+	key_mode = simple_strtol(buffer, 0, 10);
 	return count;
 }
 
@@ -301,6 +301,7 @@ static int __init jz_kbd_init(void)
 	struct input_polled_dev *poll_dev;
 	struct input_dev *input_dev;
 	int i, j, error;
+	key_mode = 1;
 
 	printk("jz-gpio-keys: scan interval %ums\n", SCAN_INTERVAL);
 
@@ -367,10 +368,10 @@ static int __init jz_kbd_init(void)
 	if (error) goto fail;
 
 	struct proc_dir_entry *res;
-	res = create_proc_entry("jz/alt", 0, NULL);
+	res = create_proc_entry("jz/keyboard", 0, NULL);
 	if (res) {
-		res->read_proc = jz_alt_keys_read_proc;
-		res->write_proc = jz_alt_keys_write_proc;
+		res->read_proc = jz_key_mode_read_proc;
+		res->write_proc = jz_key_mode_write_proc;
 	}
 
 	return 0;
