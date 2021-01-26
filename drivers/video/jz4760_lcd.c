@@ -108,8 +108,8 @@ bool backlight_control = true;
 spinlock_t lock;
 wait_queue_head_t wait_vsync;
 
-#define MAX_XRES TVE_WIDTH_PAL
-#define MAX_YRES TVE_HEIGHT_PAL
+#define MAX_XRES 800
+#define MAX_YRES 600
 
 #define LCD_SCREEN_W jz4760_lcd_info->panel.w
 #define LCD_SCREEN_H jz4760_lcd_info->panel.h
