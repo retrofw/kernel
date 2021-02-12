@@ -423,8 +423,8 @@ static void configure_resize(void)
     upscale_h = (resizeHeight >= settings->in_height);
 
     // Get IPU table entry for resize ratio
-    selected_w = find_ratio(settings->in_width * IPU_RATIO_MUL / resizeWidth, upscale_w, ratio_count);
-    selected_h = find_ratio(settings->in_height * IPU_RATIO_MUL / resizeHeight, upscale_h, ratio_count);
+    selected_w = find_ratio(settings->in_width * IPU_RATIO_MUL / resizeWidth, 1 /*upscale_w*/, ratio_count);
+    selected_h = find_ratio(settings->in_height * IPU_RATIO_MUL / resizeHeight, 1 /*upscale_h*/, ratio_count);
 
     // Number of pixel points needed to correctly resize
     width_points = upscale_w ? ratios[selected_w].m : ratios[selected_w].n;
