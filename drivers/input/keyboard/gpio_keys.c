@@ -89,6 +89,11 @@ struct jz_kbd {
 
 struct jz_kbd jz_gpio_kbd;
 
+
+#if defined(CONFIG_PM)
+extern int jz_pm_sleep(void);
+#endif
+
 #ifdef GPIO_BACKLIGHT
 extern int jz4760fb_get_backlight_level(void);
 extern void jz4760fb_set_backlight_level(int n);
@@ -227,7 +232,7 @@ static void jz_kbd_poll(struct input_polled_dev *dev)
 			while (backlight_value-- > 0) {
 				__lcd_set_backlight_level(backlight_value);
 				mdelay(3);
-			} // loop ends with backlight_value = -1;
+			}
 		}
 	#endif // CONFIG_PM
 	} else
@@ -262,7 +267,10 @@ static void jz_kbd_poll(struct input_polled_dev *dev)
 
 	#ifdef CONFIG_PM
 		if (kbd->power_count > SLEEP_COUNT && kbd->power_count < REBOOT_COUNT) {
-			jz4760fb_set_backlight_level(-2);
+			handle_sysrq('s', NULL); /* Force sync */
+			jz_pm_sleep();
+			backlight_value = jz4760fb_get_backlight_level();
+			__lcd_set_backlight_level(backlight_value);
 		} else if (kbd->power_count > 0) {
 			input_report_key(input, jz_button[GPIO_POWER].ncode, 1);
 			mdelay(40);
