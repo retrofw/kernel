@@ -103,8 +103,6 @@ uint32_t vsync_count;
 uint32_t ipu_ratio = 1;
 uint32_t tve_mode = 0;
 
-bool backlight_control = true;
-
 spinlock_t lock;
 wait_queue_head_t wait_vsync;
 
@@ -1646,8 +1644,6 @@ static int jz_backlight_read_proc(char *page, char **start, off_t off, int count
 
 static int jz_backlight_write_proc(struct file *file, const char *buffer, unsigned long count, void *data)
 {
-	backlight_control = buffer[0] != '-';
-
 	int val = simple_strtol(buffer, 0, 10);
 
 	if (val == 101) { // debug

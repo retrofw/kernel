@@ -90,11 +90,10 @@ struct jz_kbd {
 struct jz_kbd jz_gpio_kbd;
 
 #ifdef GPIO_BACKLIGHT
-extern bool backlight_control;
 extern int jz4760fb_get_backlight_level(void);
 extern void jz4760fb_set_backlight_level(int n);
 #endif
-int backlight_value = -1;
+int backlight_value;
 int key_mode;
 
 static void jz_kbd_poll(struct input_polled_dev *dev)
@@ -128,14 +127,13 @@ static void jz_kbd_poll(struct input_polled_dev *dev)
 // #endif
 
 #ifdef GPIO_BACKLIGHT
-	if (key_mode != 3 && s & (1 << GPIO_BACKLIGHT) && !kbd->backlight_state && backlight_control) {
-		backlight_value = jz4760fb_get_backlight_level() + 20;
-		if (backlight_value >= 120)
-			backlight_value = 5;
-		else if (backlight_value > 100)
-			backlight_value = 100;
+	if (key_mode != 3 && s & (1 << GPIO_BACKLIGHT) && !kbd->backlight_state) {
+		backlight_value = jz4760fb_get_backlight_level();
+		if (!backlight_value) return;
+		backlight_value += 10;
+		if (backlight_value >= 110) backlight_value = 5;
+		else if (backlight_value > 100) backlight_value = 100;
 		jz4760fb_set_backlight_level(backlight_value);
-
 	}
 	kbd->backlight_state = s; /* Update current backlight button state */
 #endif
@@ -269,9 +267,6 @@ static void jz_kbd_poll(struct input_polled_dev *dev)
 			input_report_key(input, jz_button[GPIO_POWER].ncode, 1);
 			mdelay(40);
 		}
-		if (backlight_value < 0) {
-			backlight_value = jz4760fb_get_backlight_level();
-		}
 	#endif // CONFIG_PM
 
 		kbd->power_count = kbd->special_count = kbd->hold_count = 0; /* Stop hold pressed counter */
@@ -302,6 +297,7 @@ static int __init jz_kbd_init(void)
 	struct input_dev *input_dev;
 	int i, j, error;
 	key_mode = 1;
+	backlight_value = jz4760fb_get_backlight_level();
 
 	printk("jz-gpio-keys: scan interval %ums\n", SCAN_INTERVAL);
 
