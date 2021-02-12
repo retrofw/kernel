@@ -1322,6 +1322,15 @@ static int fpu_write_proc(struct file *file, const char *buffer, unsigned long c
 
 // #endif
 
+#if defined(CONFIG_PM)
+extern int jz_pm_sleep(void);
+static int sleep_write_proc(struct file *file, const char *buffer, unsigned long count, void *data)
+{
+	jz_pm_sleep();
+	return count;
+}
+#endif
+
 /*
  * /proc/jz/xxx entry
  *
@@ -1385,7 +1394,7 @@ static int __init jz_proc_init(void)
 		res->data = NULL;
 	}
 
-        /* DDR Controller */
+    /* DDR Controller */
 	res = create_proc_entry("ddrc", 0644, proc_jz_root);
 	if (res) {
 		res->read_proc = ddrc_read_proc;
@@ -1485,6 +1494,17 @@ static int __init jz_proc_init(void)
 		res->write_proc = fpu_write_proc;
 		res->data = NULL;
 	}
+
+
+#if defined(CONFIG_PM)
+	/* sleep */
+	res = create_proc_entry("sleep", 0644, proc_jz_root);
+	if (res) {
+		res->read_proc = NULL;
+		res->write_proc = sleep_write_proc;
+		res->data = NULL;
+	}
+#endif
 
 	return 0;
 }
