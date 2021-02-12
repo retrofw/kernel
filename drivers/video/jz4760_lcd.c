@@ -36,8 +36,6 @@
 #include <linux/init.h>
 #include <linux/dma-mapping.h>
 #include <linux/platform_device.h>
-#include <linux/pm.h>
-#include <linux/sysrq.h>
 
 #include <asm/irq.h>
 #include <asm/pgtable.h>
@@ -158,10 +156,6 @@ void fg0_draw(unsigned short *src, uint16_t src_w, int16_t src_h, int16_t dst_x,
 		}
 	}
 }
-
-#if defined(CONFIG_PM) && !defined(CONFIG_SOC_JZ4770)
-extern int jz_pm_sleep(void);
-#endif
 
 extern void ipu_stop(void);
 extern void ipu_start(int, int, int, int);
@@ -1508,23 +1502,6 @@ void jz4760fb_set_backlight_level(int n)
 	D("");
 	struct lcd_cfb_info *cfb = jz4760fb_info;
 
-#if defined(CONFIG_PM) && !defined(CONFIG_SOC_JZ4770)
-	if (n <= -1 && !tve_mode) { // suspend
-		if (n == -1) {
-			for (n = cfb->backlight_level; n > 0; n--) {
-				__lcd_set_backlight_level(n);
-				mdelay(3);
-			}
-		}
-
-		screen_off();
-		handle_sysrq('s', NULL); /* Force sync */
-		jz_pm_sleep();
-		screen_on();
-		return;
-
-	} else
-#endif // CONFIG_PM
 	if (n < 1 || tve_mode) { // Turn off LCD backlight
 		screen_off();
 
