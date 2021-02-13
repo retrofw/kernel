@@ -75,6 +75,8 @@ endif
 
 %_defconfig: $(obj)/conf
 	$(Q)$< -D arch/$(SRCARCH)/configs/$@ $(Kconfig)
+	echo CONFIG_LCD_$(LCD)=y >> .config
+	echo CONFIG_GPIO_$(GPIO)=y >> .config
 
 # Help text used by make help
 help:
