@@ -1555,7 +1555,7 @@ static void gpio_init(void)
 {
 	D("");
 	__lcd_display_pin_init();  //LCD REST
-#if defined(CONFIG_JZ4760_LCD_RG_V10) || defined(CONFIG_JZ4760_LCD_RG_IPS) || defined(CONFIG_JZ4760_LCD_RG300_V20)
+#if defined(CONFIG_LCD_A030JTN01) || defined(CONFIG_LCD_Y030XX067A)
 		REG_GPIO_PXFUNS(2) = 0x000c31fc;
 		REG_GPIO_PXTRGC(2) = 0x000c31fc;
 		REG_GPIO_PXSELC(2) = 0x000c31fc;

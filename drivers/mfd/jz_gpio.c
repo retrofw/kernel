@@ -27,18 +27,18 @@ static int jz_gpio_read_proc(char *page, char **start, off_t off, int count, int
 
 	sprintf(buf, "");
 
-#if defined(CONFIG_JZ4760_LCD_TM370_LN430_9)
-	sprintf(buf + strlen(buf), "480x272 RETROARCADE\n");
-#elif defined(CONFIG_JZ4760_LCD_RG_V10)
-	sprintf(buf + strlen(buf), "320X480 RETROGAME V1.0\n");
-#elif defined(CONFIG_JZ4760_LCD_RG_V21)
-	sprintf(buf + strlen(buf), "320X480 RETROGAME V2.1\n");
-#elif defined(CONFIG_JZ4760_LCD_RG_V30)
-	sprintf(buf + strlen(buf), "320X480 RETROGAME V3.0\n");
-#elif defined(CONFIG_JZ4760_LCD_RG_IPS)
-	sprintf(buf + strlen(buf), "320X480 RETROGAME IPS\n");
+#if defined(CONFIG_LCD_TM370LN4309)
+	sprintf(buf + strlen(buf), "480x272 TM370LN4309\n");
+#elif defined(CONFIG_LCD_A030JTN01)
+	sprintf(buf + strlen(buf), "320X480 A030JTN01\n");
+#elif defined(CONFIG_LCD_EJ030NA09B)
+	sprintf(buf + strlen(buf), "320X480 EJ030NA09B\n");
+#elif defined(CONFIG_LCD_LKWY030A01)
+	sprintf(buf + strlen(buf), "320X480 LKWY030A01\n");
+#elif defined(CONFIG_LCD_Y030XX067A)
+	sprintf(buf + strlen(buf), "320X480 Y030XX067A\n");
 #else
-	sprintf(buf + strlen(buf), "UNKNOWN DEVICE\n");
+	sprintf(buf + strlen(buf), "UNKNOWN LCD PANEL\n");
 #endif
 
 	sprintf(buf + strlen(buf), "\n%16s", " ");

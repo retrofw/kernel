@@ -4,26 +4,27 @@
 choice
 	depends on FB_JZ4760_LCD
 	prompt "LCD Panel"
-	default JZ4760_LCD_TM370_LN430_9
+	default LCD_NONE
 	---help---
-	   Please select the lcd panel in you board
+	   Select here the LCD panel driver for your board
 
-config JZ4760_LCD_TM370_LN430_9
+config LCD_NONE
+	bool "** Select the LCD panel"
+
+config LCD_TM370LN4309
 	bool "RetroArcade TM370_LN430_9 TFT 480x272 18bit"
 
-
-
-config JZ4760_LCD_RG_V10
+config LCD_A030JTN01
 	bool "RetroGame V1.0 AUO A030JTN01 320x480"
 
-config JZ4760_LCD_RG_V21
+config LCD_EJ030NA09B
 	bool "RetroGame V2.1 INNOLUX EJ030NA-01B 320x480"
 
-config JZ4760_LCD_RG_V30
-	bool "RetroGame V3.0 LianKeWeiYe LKWY030A01 320x480"
+config LCD_LKWY030A01
+	bool "LianKeWeiYe LKWY030A01 320x480 (RetroGame V3.0)"
 
-config JZ4760_LCD_RG_IPS
-	bool "RetroGame Sharp IPS"
+config LCD_Y030XX067A
+	bool "RetroGame IPS ABT Y030XX067A"
 
 config JZ4760_SLCD_SNK
 	bool "RetroGame Plus SNK SLCD 320x240 16bit"

@@ -336,7 +336,7 @@ static int __init sadc_init(void)
 	battery_mv_usb = 0;
 	battery_low = BAT_LOW;
 
-#if defined(CONFIG_SOC_JZ4760B) && defined(CONFIG_JZ4760_LCD_RG_IPS)
+#if defined(CONFIG_SOC_JZ4760B) && defined(CONFIG_LCD_Y030XX067A)
 	battery_low = BAT_LOW - 100;
 #endif
 

@@ -1,10 +1,10 @@
 # LCD drivers
 
-obj-$(CONFIG_JZ4760_LCD_TM370_LN430_9)					+= panel-tm370_ln430_9.o
-obj-$(CONFIG_JZ4760_LCD_RG_V10)							+= panel-a030jtn01.o
-obj-$(CONFIG_JZ4760_LCD_RG_V21)							+= panel-ej030na-09b.o
-obj-$(CONFIG_JZ4760_LCD_RG_V30)							+= panel-lkwy030a01.o
-obj-$(CONFIG_JZ4760_LCD_RG_IPS)							+= panel-rgp-ips.o
+obj-$(CONFIG_LCD_TM370LN4309)					+= panel-tm370_ln430_9.o
+obj-$(CONFIG_LCD_A030JTN01)								+= panel-a030jtn01.o
+obj-$(CONFIG_LCD_EJ030NA09B)							+= panel-ej030na-09b.o
+obj-$(CONFIG_LCD_LKWY030A01)							+= panel-lkwy030a01.o
+obj-$(CONFIG_LCD_Y030XX067A)							+= panel-rgp-ips.o
 obj-$(CONFIG_JZ4760_SLCD_SNK)							+= panel-rgp-slcd.o
 obj-$(CONFIG_LCD_NT39016)								+= panel-nt39016.c
 obj-$(CONFIG_JZ4760_LCD_SAMSUNG_LTP400WQF01)			+=
