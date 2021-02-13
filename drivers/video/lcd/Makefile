@@ -1,8 +1,6 @@
 # LCD drivers
 
 obj-$(CONFIG_JZ4760_LCD_TM370_LN430_9)					+= panel-tm370_ln430_9.o
-obj-$(CONFIG_LCD_GOPHER2)					+= panel-tm370_ln430_9.o
-obj-$(CONFIG_LCD_PAPK3)					+= panel-tm370_ln430_9.o
 obj-$(CONFIG_JZ4760_LCD_RG_V10)							+= panel-a030jtn01.o
 obj-$(CONFIG_JZ4760_LCD_RG_V21)							+= panel-ej030na-09b.o
 obj-$(CONFIG_JZ4760_LCD_RG_V30)							+= panel-lkwy030a01.o

@@ -29,10 +29,6 @@ static int jz_gpio_read_proc(char *page, char **start, off_t off, int count, int
 
 #if defined(CONFIG_JZ4760_LCD_TM370_LN430_9)
 	sprintf(buf + strlen(buf), "480x272 RETROARCADE\n");
-#elif defined(CONFIG_LCD_GOPHER2)
-	sprintf(buf + strlen(buf), "480x272 GOPHER2\n");
-#elif defined(CONFIG_LCD_PAPK3)
-	sprintf(buf + strlen(buf), "480x272 PAPK3PLUS\n");
 #elif defined(CONFIG_JZ4760_LCD_RG_V10)
 	sprintf(buf + strlen(buf), "320X480 RETROGAME V1.0\n");
 #elif defined(CONFIG_JZ4760_LCD_RG_V21)
