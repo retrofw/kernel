@@ -161,6 +161,9 @@ extern void ipu_stop(void);
 extern void ipu_start(int, int, int, int);
 extern void ipu_update_address(void);
 
+extern void dlv_disable_speaker(void);
+extern void dlv_enable_speaker(void);
+
 static void jz4760fb_set_mode(struct jz4760lcd_info *lcd_info);
 static void jz4760fb_deep_set_mode(struct jz4760lcd_info *lcd_info);
 static void jz4760fb_change_clock(struct jz4760lcd_info *lcd_info);
@@ -1681,6 +1684,9 @@ static int jz_tvout_write_proc(struct file *file, const char *buffer, unsigned l
 
 		/* turn on lcd backlight */
 		screen_on();
+
+		dlv_enable_speaker();
+
 	} else {
 		jz4760_lcd_info = &jz4760_info_tve;
 
@@ -1697,6 +1703,8 @@ static int jz_tvout_write_proc(struct file *file, const char *buffer, unsigned l
 		}
 
 		jz4760tve_init(tve_mode); /* tve controller init */
+
+		dlv_disable_speaker();
 
 		/* turn off lcd backlight */
 		screen_off();
