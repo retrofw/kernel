@@ -1462,14 +1462,14 @@ static int jz_i2s_ioctl_mixdev(struct inode *inode, struct file *file, unsigned 
         static int last_val = 0;
         codec->audio_volume = val;
         l009_globle_volume = val;
-        extern int is_close_amp_hp;
+        extern int sound_enabled;
         if(val == 0)
         {
         #ifdef HP_POWER_EN
           __gpio_clear_pin(HP_POWER_EN);
         #endif
         }
-        else if(val > 0 && (last_val == 0 || is_close_amp_hp))
+        else if(val > 0 && (last_val == 0 || !sound_enabled))
         {
    #ifdef  HP_POWER_EN
         #ifdef EARPHONE_DETE

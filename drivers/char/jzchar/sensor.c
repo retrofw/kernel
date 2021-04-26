@@ -129,66 +129,6 @@ unsigned int l009_gsensor_read()
 EXPORT_SYMBOL(l009_gsensor_read);
 
 
-/*  AMP and Headphone */
-int hp_in;
-static unsigned int sound_flag = 0;  //default the amp is off
-
-static int proc_amp_read_proc(
-			char *page, char **start, off_t off,
-			int count, int *eof, void *data)
-{
-	return sprintf(page, "%u\n", sound_flag);
-}
-static int proc_hp_read_proc(
-			char *page, char **start, off_t off,
-			int count, int *eof, void *data)
-{
-	return sprintf(page, "%u\n", hp_in);
-}
-
-
-static int proc_hp_write_proc(
-			struct file *file, const char *buffer,
-			unsigned long count, void *data)
-{
-
-	return count;
-
-}
-int is_close_amp_hp = 1;
-
-static int proc_amp_write_proc(
-			struct file *file, const char *buffer,
-			unsigned long count, void *data)
-{
-#if 1
-		sound_flag =  simple_strtoul(buffer, 0, 10);
-
-		if(sound_flag == 1)   //sound on
-		{
-			//printk("sound on\n");
-		#ifdef HP_POWER_EN
-			if(hp_in == 0)
-				__gpio_set_pin(HP_POWER_EN);
-	    #endif
-			is_close_amp_hp = 0;
-
-		}
-		else if(sound_flag == 0)  //mute
-		{
-		#ifdef HP_POWER_EN
-			//printk("mute\n");
-			//if(hp_in == 0)
-			__gpio_clear_pin(HP_POWER_EN);
-		#endif
-			is_close_amp_hp = 1;
-
-		}
-		else
-			;
-#endif
-}
-
 
 /*
  * Module init and exit
@@ -196,27 +136,6 @@ static int proc_amp_write_proc(
 
 static int __init sensor_init(void)
 {
-	int ret;
-	struct proc_dir_entry *res;
-
-
-	res = create_proc_entry("jz/amp", 0, NULL);
-	if(res)
-	{
-		res->data = NULL;
-		res->read_proc = proc_amp_read_proc;
-		res->write_proc = proc_amp_write_proc;
-	}
-
-	res = create_proc_entry("jz/hp_l009", 0, NULL);
-	if(res)
-	{
-		res->data = NULL;
-		res->read_proc = proc_hp_read_proc;
-		res->write_proc = proc_hp_write_proc;
-	}
-
-
 	return 0;
 }
 

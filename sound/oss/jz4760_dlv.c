@@ -80,6 +80,7 @@ static unsigned int g_current_out_dev = 0;
 static unsigned int g_bluetooth_enabled = 0;
 static struct semaphore *g_dlv_sem = 0;
 static int greplay_volume;
+int hp_in;
 
 static spinlock_t g_dlv_sem_lock;
 
@@ -962,16 +963,17 @@ static void dlv_disable_btl(void)
  */
 // extern unsigned int panle_mode;
 extern unsigned int l009_globle_volume;
-static void dlv_enable_speaker(void)
+void dlv_enable_speaker(void)
 {
-#ifdef  HP_POWER_EN
+	if (hp_in) return;
+#ifdef HP_POWER_EN
 //	dlv_enable_btl();
 	if (/*!panle_mode &&*/ l009_globle_volume > 0){
 		__gpio_as_func0(HP_POWER_EN);
 		__gpio_as_output(HP_POWER_EN);
 		__gpio_enable_pull(HP_POWER_EN);
 		__gpio_set_pin(HP_POWER_EN);
-	}else{
+	} else {
 		__gpio_as_func0(HP_POWER_EN);
 		__gpio_as_output(HP_POWER_EN);
 		__gpio_clear_pin(HP_POWER_EN);
@@ -983,7 +985,7 @@ static void dlv_enable_speaker(void)
  * Disable SPEAKER replay mode
  *
  */
-static void dlv_disable_speaker(void)
+void dlv_disable_speaker(void)
 {
 #ifdef HP_POWER_EN
 //	dlv_disable_btl();
@@ -1636,11 +1638,9 @@ static int jzdlv_ioctl(void *context, unsigned int cmd, unsigned long arg)
 		if (arg == 1) {
 			dlv_enable_speaker();
 			//printk("speaker!!!!\n");
-
-                } else {
-                  dlv_disable_speaker();
-                  dlv_enable_hp_out();
-
+		} else {
+			dlv_disable_speaker();
+			dlv_enable_hp_out();
 		}
 		break;
 
@@ -1946,65 +1946,89 @@ static irqreturn_t dlv_codec_irq(int irq, void *dev_id)
 	}
 }
 
-
-extern int hp_in;
-
 #ifdef EARPHONE_DETE
 
 static struct timer_list hp_irq_timer;
 
 static void hp_ack_timer(unsigned long data)
 {
-	if (
-		(__gpio_get_pin(EARPHONE_DETE) != DETE_ACTIV_LEVEL) &&
-		(__gpio_get_pin(AV_OUT_DETE) != DETE_ACTIV_LEVEL)
-	)
-  	{
-		hp_in = 0;
-	    printk("%s: hp not connected\n",__func__);
-	    dlv_enable_speaker();
+	// hp_in = (__gpio_get_pin(EARPHONE_DETE) == DETE_ACTIV_LEVEL) || (__gpio_get_pin(AV_OUT_DETE) == DETE_ACTIV_LEVEL);
+	hp_in = (__gpio_get_pin(EARPHONE_DETE) == DETE_ACTIV_LEVEL);
+	if (hp_in) {
+		printk("%s: hp connected\n",__func__);
+		dlv_disable_speaker();
+	} else {
+		printk("%s: hp not connected\n",__func__);
+		dlv_enable_speaker();
 	}
-  	else
-  	{
-	  	hp_in = 1;
-	    printk("%s: hp connected\n",__func__);
-    	dlv_disable_speaker();
-  	}
 }
 
 static irqreturn_t hp_pnp_irq(int irq, void *dev_id)
 {
-  /* mask interrupt */
-  __gpio_mask_irq(EARPHONE_DETE);
-  __gpio_mask_irq(AV_OUT_DETE);
-  //printk("hp dete irq");
+	/* mask interrupt */
+	__gpio_mask_irq(EARPHONE_DETE);
+	__gpio_mask_irq(AV_OUT_DETE);
+	//printk("hp dete irq");
 	__gpio_disable_pull(EARPHONE_DETE);
-	if(__gpio_get_pin(EARPHONE_DETE) != 0)
+	if (__gpio_get_pin(EARPHONE_DETE) != 0)
 		__gpio_as_irq_low_level(EARPHONE_DETE);
 	else
 		__gpio_as_irq_high_level(EARPHONE_DETE);
 
 	__gpio_disable_pull(AV_OUT_DETE);
-	if(__gpio_get_pin(AV_OUT_DETE) != 0)
+	if (__gpio_get_pin(AV_OUT_DETE) != 0)
 		__gpio_as_irq_low_level(AV_OUT_DETE);
 	else
 		__gpio_as_irq_high_level(AV_OUT_DETE);
 
-  hp_irq_timer.expires = jiffies + 1*HZ;
-  del_timer(&hp_irq_timer);
-  add_timer(&hp_irq_timer);
-  __gpio_unmask_irq(EARPHONE_DETE);
-  __gpio_unmask_irq(AV_OUT_DETE);
-  return IRQ_HANDLED;
+	hp_irq_timer.expires = jiffies + 1*HZ;
+	del_timer(&hp_irq_timer);
+	add_timer(&hp_irq_timer);
+	__gpio_unmask_irq(EARPHONE_DETE);
+	__gpio_unmask_irq(AV_OUT_DETE);
+	return IRQ_HANDLED;
 }
 #endif
+
+/*  AMP and Headphone */
+// int hp_in;
+unsigned int sound_enabled;
+
+static int amp_read_proc(char *page, char **start, off_t off, int count, int *eof, void *data)
+{
+	return sprintf(page, "%u\n", sound_enabled);
+}
+
+static int amp_write_proc(struct file *file, const char *buffer, unsigned long count, void *data)
+{
+	sound_enabled = !!simple_strtoul(buffer, 0, 10);
+
+#ifdef HP_POWER_EN
+	if (sound_enabled && !hp_in) { // sound on
+		__gpio_set_pin(HP_POWER_EN);
+	}
+	else { //mute
+		__gpio_clear_pin(HP_POWER_EN);
+	}
+#endif
+}
+
+static int hp_read_proc(char *page, char **start, off_t off, int count, int *eof, void *data)
+{
+	return sprintf(page, "%u\n", hp_in);
+}
+
+static int hp_write_proc(struct file *file, const char *buffer, unsigned long count, void *data)
+{
+	return count;
+}
 
 static int __init init_dlv(void)
 {
 	int retval;
 
-	printk("=====>enter %s\n", __func__);
-
+	sound_enabled = 1;
+	hp_in = 0;
 
 	cpm_start_clock(CGM_AIC);
 
@@ -2025,55 +2049,69 @@ static int __init init_dlv(void)
 		return retval;
 	}
 
+	struct proc_dir_entry *res;
+	res = create_proc_entry("jz/amp", 0, NULL);
+	if (res) {
+		res->data = NULL;
+		res->read_proc = amp_read_proc;
+		res->write_proc = amp_write_proc;
+	}
+
+	res = create_proc_entry("jz/hp", 0, NULL);
+	if (res) {
+		res->data = NULL;
+		res->read_proc = hp_read_proc;
+		res->write_proc = hp_write_proc;
+	}
+
+
 #ifdef  EARPHONE_DETE
+    init_timer(&hp_irq_timer);
+    hp_irq_timer.function = hp_ack_timer;
+    hp_irq_timer.data = 0;
+    hp_irq_timer.expires = jiffies + HZ;
+    add_timer(&hp_irq_timer);
+    //dlv_set_replay_volume(95);
 
-        init_timer(&hp_irq_timer);
-        hp_irq_timer.function = hp_ack_timer;
-        hp_irq_timer.data = 0;
-        hp_irq_timer.expires = jiffies + HZ;
-        add_timer(&hp_irq_timer);
-        //dlv_set_replay_volume(95);
+    __gpio_as_func0(EARPHONE_DETE);
+    __gpio_as_input(EARPHONE_DETE);
 
-        __gpio_as_func0(EARPHONE_DETE);
-        __gpio_as_input(EARPHONE_DETE);
-
-        __gpio_as_func0(AV_OUT_DETE);
-        __gpio_as_input(AV_OUT_DETE);
+    __gpio_as_func0(AV_OUT_DETE);
+    __gpio_as_input(AV_OUT_DETE);
 
 
-	#if 0
-        __gpio_enable_pull(EARPHONE_DETE);
-		if(__gpio_get_pin(EARPHONE_DETE) != 0)
-          	__gpio_as_irq_fall_edge(EARPHONE_DETE);
-        else
-        	__gpio_as_irq_rise_edge(EARPHONE_DETE);
-	#else
-		__gpio_disable_pull(EARPHONE_DETE);
-        if(__gpio_get_pin(EARPHONE_DETE) != 0)
-        	__gpio_as_irq_low_level(EARPHONE_DETE);
-        else
-        	__gpio_as_irq_high_level(EARPHONE_DETE);
-
-		__gpio_disable_pull(AV_OUT_DETE);
-        if(__gpio_get_pin(AV_OUT_DETE) != 0)
-        	__gpio_as_irq_low_level(AV_OUT_DETE);
-        else
-        	__gpio_as_irq_high_level(AV_OUT_DETE);
-	#endif
-
-        int ret;
-        ret = request_irq(EARPHONE_DETE_IRQ, hp_pnp_irq,
-            IRQF_DISABLED, "hp_pnp", NULL);
-        if (ret) {
-          printk("%s %d Could not get HP irq %d\n",__FILE__,__LINE__, EARPHONE_DETE_IRQ);
-          return ret;
-        }
+#if 0
+    __gpio_enable_pull(EARPHONE_DETE);
+	if(__gpio_get_pin(EARPHONE_DETE) != 0)
+      	__gpio_as_irq_fall_edge(EARPHONE_DETE);
+    else
+    	__gpio_as_irq_rise_edge(EARPHONE_DETE);
 #else
-		hp_in = 0;
-	    dlv_enable_speaker();
+	__gpio_disable_pull(EARPHONE_DETE);
+    if(__gpio_get_pin(EARPHONE_DETE) != 0)
+    	__gpio_as_irq_low_level(EARPHONE_DETE);
+    else
+    	__gpio_as_irq_high_level(EARPHONE_DETE);
+
+	__gpio_disable_pull(AV_OUT_DETE);
+    if(__gpio_get_pin(AV_OUT_DETE) != 0)
+    	__gpio_as_irq_low_level(AV_OUT_DETE);
+    else
+    	__gpio_as_irq_high_level(AV_OUT_DETE);
+#endif
+
+    int ret;
+    ret = request_irq(EARPHONE_DETE_IRQ, hp_pnp_irq,
+        IRQF_DISABLED, "hp_pnp", NULL);
+    if (ret) {
+      printk("%s %d Could not get HP irq %d\n",__FILE__,__LINE__, EARPHONE_DETE_IRQ);
+      return ret;
+    }
+#else
+    dlv_enable_speaker();
 
 #endif
-        return 0;
+    return 0;
 }
 
 /**
