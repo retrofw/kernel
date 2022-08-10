@@ -314,6 +314,9 @@ config GPIO_GOPHER2
 config GPIO_PAPK3
 	bool "PAP K3 Plus"
 
+config GPIO_PAPG2
+	bool "PAP Gameta II Plus"
+
 endchoice
 
 config KEYBOARD_MAPLE

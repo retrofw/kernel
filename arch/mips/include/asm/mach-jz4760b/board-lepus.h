@@ -262,6 +262,32 @@ do { \
 	#define AV_OUT_DETE		  	EARPHONE_DETE
 	#define UMIDO_KEY_LED		GPIO_NONE
 
+#elif defined(CONFIG_GPIO_PAPG2)
+	#define GPIO_SD2_CD_N		__GPIO('F', 0)
+
+	#define UMIDO_KEY_UP		__GPIO('B', 25)
+	#define UMIDO_KEY_DOWN		__GPIO('B', 24)
+	#define UMIDO_KEY_RIGHT		__GPIO('B', 26)
+	#define UMIDO_KEY_LEFT		__GPIO('B', 27)
+	#define UMIDO_KEY_A			__GPIO('F', 6)
+	#define UMIDO_KEY_B			__GPIO('F', 11)
+	#define UMIDO_KEY_X			__GPIO('F', 4)
+	#define UMIDO_KEY_Y			__GPIO('F', 5)
+	#define UMIDO_KEY_L			__GPIO('B', 23)
+	#define UMIDO_KEY_R			__GPIO('F', 8)
+	#define UMIDO_KEY_SELECT	__GPIO('D', 17)
+	#define UMIDO_KEY_START		__GPIO('D', 18)
+
+	#define UMIDO_KEY_VOL_UP	__GPIO('F', 9)
+	#define UMIDO_KEY_VOL_DOWN	__GPIO('F', 10)
+
+	#define HP_POWER_EN			__GPIO('A', 30) // shutdown amp
+	#define EARPHONE_DETE		__GPIO('D', 5) // hp detect
+	#define DETE_ACTIV_LEVEL	0 // 1: high 0: low
+	#define GPIO_USB_DETE		GPIO_NONE
+	#define AV_OUT_DETE		  	EARPHONE_DETE
+	#define UMIDO_KEY_LED		GPIO_NONE
+
 #elif defined(CONFIG_GPIO_RETROGAME)
 	#define GPIO_SD2_CD_N		__GPIO('F', 0)
 
