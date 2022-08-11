@@ -28,7 +28,11 @@ static int jz_gpio_read_proc(char *page, char **start, off_t off, int count, int
 	sprintf(buf, "");
 
 #if defined(CONFIG_LCD_TM370LN4309)
+#if defined(CONFIG_GPIO_PAPG2)
+	sprintf(buf + strlen(buf), "480x272 TM370LN4309 PAPG2\n");
+#else
 	sprintf(buf + strlen(buf), "480x272 TM370LN4309\n");
+#endif
 #elif defined(CONFIG_LCD_A030JTN01)
 	sprintf(buf + strlen(buf), "320X480 A030JTN01\n");
 #elif defined(CONFIG_LCD_EJ030NA09B)
