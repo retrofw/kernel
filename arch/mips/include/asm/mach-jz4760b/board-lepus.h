@@ -284,7 +284,7 @@ do { \
 	#define HP_POWER_EN			__GPIO('E', 9) // shutdown amp
 	#define EARPHONE_DETE		__GPIO('D', 5) // hp detect
 	#define DETE_ACTIV_LEVEL	1 // 1: high 0: low
-	#define GPIO_USB_DETE		__GPIO('E', 13)
+	#define GPIO_USB_DETE		__GPIO('D', 6)
 	#define AV_OUT_DETE		  	EARPHONE_DETE
 	#define UMIDO_KEY_LED		GPIO_NONE
 
